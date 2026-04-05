@@ -1,0 +1,7 @@
+{
+  "name": "PV Energy Donut Card",
+  "content_in_root": false,
+  "filename": "dist/pv-energy-donut-card.js",
+  "render_readme": true,
+  "homeassistant": "2026.1.0"
+}

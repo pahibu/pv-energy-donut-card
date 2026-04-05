@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pv-energy-donut-card Preview</title>
+    <style>
+      :root {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color-scheme: dark;
+        --page-text: #eef4fb;
+        --page-muted: #9eb0c4;
+        --panel-border: rgba(158, 176, 196, 0.18);
+        --panel-bg: rgba(9, 17, 27, 0.72);
+        --panel-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+        --chip-bg: rgba(255, 255, 255, 0.04);
+        --chip-border: rgba(158, 176, 196, 0.25);
+        --chip-active-bg: rgba(127, 200, 255, 0.16);
+        --chip-active-border: rgba(127, 200, 255, 0.6);
+        background:
+          radial-gradient(circle at top, rgba(65, 156, 255, 0.15), transparent 35%),
+          linear-gradient(180deg, #09111b, #111824);
+      }
+
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --page-text: #173046;
+        --page-muted: #587087;
+        --panel-border: rgba(85, 112, 136, 0.18);
+        --panel-bg: rgba(255, 255, 255, 0.86);
+        --panel-shadow: 0 20px 40px rgba(76, 109, 140, 0.16);
+        --chip-bg: rgba(255, 255, 255, 0.75);
+        --chip-border: rgba(85, 112, 136, 0.22);
+        --chip-active-bg: rgba(65, 156, 255, 0.14);
+        --chip-active-border: rgba(65, 156, 255, 0.5);
+        background:
+          radial-gradient(circle at top, rgba(111, 190, 255, 0.22), transparent 35%),
+          linear-gradient(180deg, #f4f9ff, #e9f0f7);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--page-text);
+        transition: color 160ms ease, background 160ms ease;
+      }
+
+      main {
+        width: min(1200px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 2rem;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: var(--page-muted);
+        line-height: 1.5;
+      }
+
+      .preview-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+
+      .preview-brand {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 20px;
+      }
+
+      .preview-brand img {
+        display: block;
+        width: min(800px, 100%);
+        height: auto;
+      }
+
+      .toolbar-cluster {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .toolbar-chip-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid var(--panel-border);
+        border-radius: 999px;
+        background: var(--panel-bg);
+        backdrop-filter: blur(10px);
+        box-shadow: var(--panel-shadow);
+      }
+
+      .toolbar-chip-label {
+        color: var(--page-muted);
+        font-size: 0.92rem;
+      }
+
+      .toolbar-chip-buttons {
+        display: inline-flex;
+        gap: 8px;
+      }
+
+      .toolbar-chip-button {
+        min-width: 42px;
+        border: 1px solid var(--chip-border);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--chip-bg);
+        color: var(--page-text);
+        font: inherit;
+        cursor: pointer;
+        transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+      }
+
+      .toolbar-chip-button:hover {
+        transform: translateY(-1px);
+      }
+
+      .toolbar-chip-button.active {
+        border-color: var(--chip-active-border);
+        background: var(--chip-active-bg);
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .control-panel {
+        padding: 18px;
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        background: var(--panel-bg);
+        box-shadow: var(--panel-shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .control-panel-heading {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .control-panel-subtitle {
+        margin-top: 4px;
+        margin-bottom: 14px;
+        color: var(--page-muted);
+        font-size: 0.92rem;
+      }
+
+      .control-row {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .control-label,
+      .control-value {
+        font-size: 0.95rem;
+      }
+
+      .control-label {
+        font-weight: 600;
+      }
+
+      .control-value {
+        color: var(--page-text);
+      }
+
+      .control-slider {
+        width: 100%;
+        accent-color: var(--accent, #5dade2);
+      }
+
+      .preview-shell {
+        display: grid;
+        gap: 24px;
+      }
+
+      .preview-stage {
+        width: min(100%, var(--preview-width, 920px));
+        margin: 0 auto;
+        transition: width 140ms ease;
+      }
+
+      ha-card {
+        display: block;
+      }
+
+      @media (max-width: 720px) {
+        .preview-topbar {
+          align-items: stretch;
+        }
+
+        .toolbar-cluster {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="preview-topbar">
+        <div id="theme-switcher"></div>
+        <div class="toolbar-cluster" id="language-switcher"></div>
+      </div>
+      <div class="preview-brand">
+        <img data-preview-banner src="./docs/images/banner-dark.png" alt="PV Energy Donut Card preview banner" width="800" />
+      </div>
+      <p data-preview-intro>
+        Local test page with dummy data. If the donuts render correctly here, the problem is very
+        likely caused by the Home Assistant resource or the browser cache.
+      </p>
+      <div class="controls-grid" id="controls"></div>
+      <div class="preview-shell" id="app"></div>
+    </main>
+    <script type="module" src="./preview/preview.js"></script>
+    <script>
+      const events = new EventSource("/__dev_reload");
+      events.addEventListener("reload", () => {
+        window.location.reload();
+      });
+    </script>
+  </body>
+</html>
