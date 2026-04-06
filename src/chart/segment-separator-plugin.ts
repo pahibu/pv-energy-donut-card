@@ -27,8 +27,8 @@ export const segmentSeparatorPlugin: Plugin<"doughnut"> = {
     }
 
     const styles = getComputedStyle(chart.canvas);
-    const separatorWidth = readCssNumber(styles, "--pv-chart-separator-width", 6);
-    const minimumSegmentWidth = readCssNumber(styles, "--pv-chart-min-segment-width", 2);
+    const separatorWidth = readCssNumber(styles, "--pv-chart-separator-width", 5);
+    const minimumSegmentWidth = readCssNumber(styles, "--pv-chart-min-segment-width", 0.5);
 
     const { ctx } = chart;
     ctx.save();

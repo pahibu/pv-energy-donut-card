@@ -193,9 +193,10 @@ export class DonutRenderer {
     const horizontalPadding = sharedHorizontalPadding ?? this.measureHorizontalPadding(model);
     const styles = getComputedStyle(this.canvas);
     const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
-    const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 2);
-    const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 6);
-    const minimumSegmentSeparatorFactor = this.readCssNumber(styles, "--pv-chart-min-segment-separator-factor", 1);
+    const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 0.5);
+    const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 5);
+    const minimumSegmentSeparatorFactor = this.readCssNumber(styles, "--pv-chart-min-segment-separator-factor", 1.5);
+    // Reserve the visible mini segment plus a configurable share of separator space.
     const minimumVisibleArc = minimumSegmentWidth + separatorWidth * minimumSegmentSeparatorFactor;
     if (!this.chart) {
       const config: ChartConfiguration<"doughnut"> = {
