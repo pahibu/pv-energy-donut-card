@@ -34,6 +34,8 @@ export const cardStyles = css`
     --pv-label-text-max: 18;
     --pv-label-line-width: 1;
     --pv-chart-padding-y: 20;
+    --pv-chart-min-segment-width: 1;
+    --pv-chart-separator-width: 5;
   }
 
   ha-card {

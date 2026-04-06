@@ -8,23 +8,114 @@ import {
 } from "chart.js";
 import { centerLabelPlugin, setCenterLabelRuntimeMeta } from "./center-label-plugin";
 import { connectorLabelPlugin, setConnectorLabelRuntimeMeta } from "./connector-label-plugin";
+import { segmentSeparatorPlugin } from "./segment-separator-plugin";
 import type { DonutRenderModel } from "./types";
 
-Chart.register(ArcElement, DoughnutController, Legend, Tooltip, centerLabelPlugin, connectorLabelPlugin);
+Chart.register(ArcElement, DoughnutController, Legend, Tooltip, segmentSeparatorPlugin, centerLabelPlugin, connectorLabelPlugin);
 
 export class DonutRenderer {
   private chart?: Chart<"doughnut">;
   private readonly measureCanvas = document.createElement("canvas");
+  private readonly resizeObserver?: ResizeObserver;
+  private lastModel?: DonutRenderModel;
+  private lastSharedHorizontalPadding?: number;
+  private pendingResizeFrame?: number;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private locale: string,
     private textColor: string
-  ) {}
+  ) {
+    if (typeof ResizeObserver !== "undefined") {
+      this.resizeObserver = new ResizeObserver(() => {
+        const model = this.lastModel;
+        if (!model || this.pendingResizeFrame !== undefined) {
+          return;
+        }
+
+        this.pendingResizeFrame = window.requestAnimationFrame(() => {
+          this.pendingResizeFrame = undefined;
+          this.update(model, this.lastSharedHorizontalPadding);
+        });
+      });
+      this.resizeObserver.observe(this.canvas);
+    }
+  }
 
   private readCssNumber(styles: CSSStyleDeclaration, propertyName: string, fallback: number): number {
     const value = Number.parseFloat(styles.getPropertyValue(propertyName).trim());
     return Number.isFinite(value) ? value : fallback;
+  }
+
+  private createDisplayValues(model: DonutRenderModel, minimumVisibleValue: number): number[] {
+    const values = model.data.map((segment) => Math.max(0, segment.value));
+    const total = values.reduce((sum, value) => sum + value, 0);
+
+    if (total <= 0 || minimumVisibleValue <= 0) {
+      return values;
+    }
+
+    const smallIndexes = values
+      .map((value, index) => ({ value, index }))
+      .filter(({ value }) => value > 0 && value < minimumVisibleValue)
+      .map(({ index }) => index);
+
+    if (!smallIndexes.length) {
+      return values;
+    }
+
+    const smallValueTarget = smallIndexes.length * minimumVisibleValue;
+    if (smallValueTarget >= total) {
+      return values;
+    }
+
+    const adjustedValues = [...values];
+    for (const index of smallIndexes) {
+      adjustedValues[index] = minimumVisibleValue;
+    }
+
+    const largeIndexes = values
+      .map((_, index) => index)
+      .filter((index) => !smallIndexes.includes(index));
+    const largeValueTotal = largeIndexes.reduce((sum, index) => sum + values[index], 0);
+
+    if (largeValueTotal <= 0) {
+      return values;
+    }
+
+    const remainingValue = total - smallValueTarget;
+    const scale = remainingValue / largeValueTotal;
+    for (const index of largeIndexes) {
+      adjustedValues[index] = values[index] * scale;
+    }
+
+    return adjustedValues;
+  }
+
+  private estimateMinimumVisibleValue(
+    model: DonutRenderModel,
+    horizontalPadding: number,
+    verticalPadding: number,
+    minimumVisibleArc: number
+  ): number {
+    const total = model.data.reduce((sum, segment) => sum + Math.max(0, segment.value), 0);
+
+    if (total <= 0 || minimumVisibleArc <= 0) {
+      return 0;
+    }
+
+    const availableWidth = Math.max(1, this.canvas.clientWidth - horizontalPadding * 2);
+    const availableHeight = Math.max(1, this.canvas.clientHeight - verticalPadding * 2);
+    const outerRadius = Math.max(1, Math.min(availableWidth, availableHeight) / 2);
+    const cutoutRatio = 0.76;
+    const midRadius = outerRadius * ((1 + cutoutRatio) / 2);
+    const circumference = 2 * Math.PI * midRadius;
+
+    if (!Number.isFinite(circumference) || circumference <= 0) {
+      return 0;
+    }
+
+    return total * (minimumVisibleArc / circumference);
   }
 
   public measureHorizontalPadding(model: DonutRenderModel): number {
@@ -82,14 +173,25 @@ export class DonutRenderer {
   }
 
   update(model: DonutRenderModel, sharedHorizontalPadding?: number): void {
+    this.lastModel = model;
+    this.lastSharedHorizontalPadding = sharedHorizontalPadding;
+
     const values = model.data.map((segment) => segment.value);
     const colors = model.data.map((segment) => segment.color);
     const labels = model.data.map((segment) => segment.label);
     const horizontalPadding = sharedHorizontalPadding ?? this.measureHorizontalPadding(model);
     const styles = getComputedStyle(this.canvas);
     const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
-    const separatorColor = styles.getPropertyValue("--pv-card-divider").trim() || this.textColor;
-    const segmentSpacing = 4;
+    const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 6);
+    const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 2);
+    const minimumVisibleArc = minimumSegmentWidth + separatorWidth * 2;
+    const minimumVisibleValue = this.estimateMinimumVisibleValue(
+      model,
+      horizontalPadding,
+      verticalPadding,
+      minimumVisibleArc
+    );
+    const displayValues = this.createDisplayValues(model, minimumVisibleValue);
 
     if (!this.chart) {
       const config: ChartConfiguration<"doughnut"> = {
@@ -98,14 +200,11 @@ export class DonutRenderer {
           labels,
           datasets: [
             {
-              data: values,
+              data: displayValues,
               backgroundColor: colors,
-              borderColor: separatorColor,
-              borderWidth: 2,
-              hoverBorderColor: separatorColor,
-              hoverBorderWidth: 2,
-              hoverOffset: 4,
-              spacing: segmentSpacing
+              borderWidth: 0,
+              hoverBorderWidth: 0,
+              hoverOffset: 4
             }
           ]
         },
@@ -148,12 +247,10 @@ export class DonutRenderer {
     }
 
     this.chart.data.labels = labels;
-    this.chart.data.datasets[0].data = values;
+    this.chart.data.datasets[0].data = displayValues;
     this.chart.data.datasets[0].backgroundColor = colors;
-    this.chart.data.datasets[0].borderColor = separatorColor;
-    this.chart.data.datasets[0].hoverBorderColor = separatorColor;
-    this.chart.data.datasets[0].hoverBorderWidth = 2;
-    this.chart.data.datasets[0].spacing = segmentSpacing;
+    this.chart.data.datasets[0].borderWidth = 0;
+    this.chart.data.datasets[0].hoverBorderWidth = 0;
     setCenterLabelRuntimeMeta(this.chart, {
       title: model.title,
       totalFormatted: model.totalFormatted
@@ -180,7 +277,15 @@ export class DonutRenderer {
   }
 
   destroy(): void {
+    if (this.pendingResizeFrame !== undefined) {
+      window.cancelAnimationFrame(this.pendingResizeFrame);
+      this.pendingResizeFrame = undefined;
+    }
+
+    this.resizeObserver?.disconnect();
     this.chart?.destroy();
     this.chart = undefined;
+    this.lastModel = undefined;
+    this.lastSharedHorizontalPadding = undefined;
   }
 }
