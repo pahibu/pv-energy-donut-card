@@ -28,15 +28,16 @@ export const segmentSeparatorPlugin: Plugin<"doughnut"> = {
 
     const styles = getComputedStyle(chart.canvas);
     const separatorWidth = readCssNumber(styles, "--pv-chart-separator-width", 6);
+    const minimumSegmentWidth = readCssNumber(styles, "--pv-chart-min-segment-width", 2);
 
     const { ctx } = chart;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
     ctx.lineWidth = separatorWidth;
-    ctx.lineCap = "round";
+    ctx.lineCap = "butt";
 
-    const minimumVisibleArc = 2;
-    const minimumRequiredArc = minimumVisibleArc + separatorWidth * 2;
+    const minimumVisibleArc = minimumSegmentWidth;
+    const minimumRequiredArc = minimumSegmentWidth + separatorWidth * 2;
     const arcLengths = arcs.map((arc) => {
       const midRadius = (arc.innerRadius + arc.outerRadius) / 2;
       return arc.circumference * midRadius;

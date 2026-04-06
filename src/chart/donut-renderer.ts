@@ -92,7 +92,22 @@ export class DonutRenderer {
     return adjustedValues;
   }
 
-  private estimateMinimumVisibleValue(
+  private resolveMidRadius(horizontalPadding: number, verticalPadding: number): number {
+    const firstArc = this.chart?.getDatasetMeta(0)?.data?.[0] as ArcElement | undefined;
+    const chartMidRadius = firstArc ? (firstArc.innerRadius + firstArc.outerRadius) / 2 : 0;
+
+    if (Number.isFinite(chartMidRadius) && chartMidRadius > 0) {
+      return chartMidRadius;
+    }
+
+    const availableWidth = Math.max(1, this.canvas.clientWidth - horizontalPadding * 2);
+    const availableHeight = Math.max(1, this.canvas.clientHeight - verticalPadding * 2);
+    const outerRadius = Math.max(1, Math.min(availableWidth, availableHeight) / 2);
+    const cutoutRatio = 0.76;
+    return outerRadius * ((1 + cutoutRatio) / 2);
+  }
+
+  private calculateMinimumVisibleValue(
     model: DonutRenderModel,
     horizontalPadding: number,
     verticalPadding: number,
@@ -104,11 +119,7 @@ export class DonutRenderer {
       return 0;
     }
 
-    const availableWidth = Math.max(1, this.canvas.clientWidth - horizontalPadding * 2);
-    const availableHeight = Math.max(1, this.canvas.clientHeight - verticalPadding * 2);
-    const outerRadius = Math.max(1, Math.min(availableWidth, availableHeight) / 2);
-    const cutoutRatio = 0.76;
-    const midRadius = outerRadius * ((1 + cutoutRatio) / 2);
+    const midRadius = this.resolveMidRadius(horizontalPadding, verticalPadding);
     const circumference = 2 * Math.PI * midRadius;
 
     if (!Number.isFinite(circumference) || circumference <= 0) {
@@ -182,17 +193,10 @@ export class DonutRenderer {
     const horizontalPadding = sharedHorizontalPadding ?? this.measureHorizontalPadding(model);
     const styles = getComputedStyle(this.canvas);
     const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
-    const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 6);
     const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 2);
-    const minimumVisibleArc = minimumSegmentWidth + separatorWidth * 2;
-    const minimumVisibleValue = this.estimateMinimumVisibleValue(
-      model,
-      horizontalPadding,
-      verticalPadding,
-      minimumVisibleArc
-    );
-    const displayValues = this.createDisplayValues(model, minimumVisibleValue);
-
+    const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 6);
+    const minimumSegmentSeparatorFactor = this.readCssNumber(styles, "--pv-chart-min-segment-separator-factor", 1);
+    const minimumVisibleArc = minimumSegmentWidth + separatorWidth * minimumSegmentSeparatorFactor;
     if (!this.chart) {
       const config: ChartConfiguration<"doughnut"> = {
         type: "doughnut",
@@ -200,7 +204,7 @@ export class DonutRenderer {
           labels,
           datasets: [
             {
-              data: displayValues,
+              data: values,
               backgroundColor: colors,
               borderWidth: 0,
               hoverBorderWidth: 0,
@@ -233,18 +237,16 @@ export class DonutRenderer {
       };
 
       this.chart = new Chart(this.canvas, config);
-      setCenterLabelRuntimeMeta(this.chart, {
-        title: model.title,
-        totalFormatted: model.totalFormatted
-      });
-      setConnectorLabelRuntimeMeta(this.chart, {
-        locale: this.locale,
-        data: model.data,
-        textColor: this.textColor
-      });
       this.chart.update("none");
-      return;
     }
+
+    const minimumVisibleValue = this.calculateMinimumVisibleValue(
+      model,
+      horizontalPadding,
+      verticalPadding,
+      minimumVisibleArc
+    );
+    const displayValues = this.createDisplayValues(model, minimumVisibleValue);
 
     this.chart.data.labels = labels;
     this.chart.data.datasets[0].data = displayValues;
