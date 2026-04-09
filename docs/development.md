@@ -62,6 +62,9 @@ Key paths:
 
 The GitHub Actions workflow in `.github/workflows/visual.yml` runs these checks on `push` and `pull_request` and uploads diff artifacts on failure.
 
+> [!NOTE]
+> Visual snapshots can differ slightly between platforms, especially between macOS and Ubuntu-based GitHub runners because of font rendering and browser rasterization differences. Treat the GitHub Actions run on Linux as the authoritative reference for CI, and update committed golden images to match that environment when needed.
+
 The production bundle is generated at:
 
 ```text
