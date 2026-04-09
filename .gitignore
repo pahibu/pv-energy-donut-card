@@ -6,3 +6,5 @@ coverage
 *.log
 yarn.lock
 pnpm-lock.yaml
+tests/visual/actual
+tests/visual/diff
