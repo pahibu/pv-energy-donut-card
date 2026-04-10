@@ -30,6 +30,10 @@ export const segmentSeparatorPlugin: Plugin<"doughnut"> = {
     const separatorWidth = readCssNumber(styles, "--pv-chart-separator-width", 5);
     const minimumSegmentWidth = readCssNumber(styles, "--pv-chart-min-segment-width", 0.5);
 
+    if (separatorWidth <= 0) {
+      return;
+    }
+
     const { ctx } = chart;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";

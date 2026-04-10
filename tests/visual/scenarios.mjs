@@ -105,6 +105,38 @@ export const visualScenarios = {
       "sensor.preview_pv_self_use_production_today": 11.78
     }
   },
+  "spacing-compact": {
+    snapshotName: "spacing-compact",
+    viewport: {
+      width: 1100,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 860,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createBaseConfig(),
+      segment_spacing: "compact"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "spacing-none": {
+    snapshotName: "spacing-none",
+    viewport: {
+      width: 1100,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 860,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createBaseConfig(),
+      segment_spacing: "none"
+    },
+    stateValues: createBaseStateValues()
+  },
   "time-navigator": {
     snapshotName: "time-navigator",
     viewport: {

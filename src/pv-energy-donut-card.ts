@@ -33,6 +33,7 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
+  segment_spacing?: "relaxed" | "compact" | "none";
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
@@ -57,6 +58,7 @@ interface NormalizedCardConfig {
   title?: string;
   locale?: string;
   mode: CardMode;
+  segmentSpacing: "relaxed" | "compact" | "none";
   valuePrecision: number;
   totalPrecision: number;
   charts: NormalizedChartConfig[];
@@ -95,10 +97,26 @@ const normalizeConfig = (config: CardConfig): NormalizedCardConfig => ({
   title: config.title?.trim(),
   locale: config.locale?.trim(),
   mode: config.mode === "time_navigator" ? "time_navigator" : "simple",
+  segmentSpacing: config.segment_spacing === "compact" || config.segment_spacing === "none" ? config.segment_spacing : "relaxed",
   valuePrecision: Number.isInteger(config.value_precision) ? Math.max(0, config.value_precision ?? 0) : 1,
   totalPrecision: Number.isInteger(config.total_precision) ? Math.max(0, config.total_precision ?? 0) : 1,
   charts: normalizeCharts(config.charts)
 });
+
+const SEGMENT_SPACING_TOKENS: Record<NormalizedCardConfig["segmentSpacing"], { separatorWidth: string; separatorFactor: string }> = {
+  relaxed: {
+    separatorWidth: "5",
+    separatorFactor: "1.5"
+  },
+  compact: {
+    separatorWidth: "3",
+    separatorFactor: "1"
+  },
+  none: {
+    separatorWidth: "0",
+    separatorFactor: "0"
+  }
+};
 
 @customElement(CARD_TAG_NAME)
 export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
@@ -175,6 +193,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
       this.configError = "invalid";
       this.config = {
         mode: "simple",
+        segmentSpacing: "relaxed",
         valuePrecision: 1,
         totalPrecision: 1,
         charts: []
@@ -184,6 +203,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
 
     const normalized = normalizeConfig(config);
     this.config = normalized;
+    this.applySegmentSpacingTokens(normalized.segmentSpacing);
     this.periodCache.clear();
     this.periodValues = new Map();
     this.periodError = undefined;
@@ -194,6 +214,12 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     this.configError = normalized.charts.length
       ? undefined
       : "missing_charts";
+  }
+
+  private applySegmentSpacingTokens(segmentSpacing: NormalizedCardConfig["segmentSpacing"]): void {
+    const tokens = SEGMENT_SPACING_TOKENS[segmentSpacing];
+    this.style.setProperty("--pv-chart-separator-width", tokens.separatorWidth);
+    this.style.setProperty("--pv-chart-min-segment-separator-factor", tokens.separatorFactor);
   }
 
   public getCardSize(): number {

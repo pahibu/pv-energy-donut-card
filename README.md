@@ -102,6 +102,7 @@ type: module
 type: custom:pv-energy-donut-card
 title: PV Energy Overview
 mode: simple
+segment_spacing: relaxed
 value_precision: 1
 total_precision: 1
 charts:
@@ -146,6 +147,7 @@ charts:
 - `title`: optional card title
 - `locale`: optional number formatting override
 - `mode`: `simple` or `time_navigator`
+- `segment_spacing`: `relaxed`, `compact`, or `none`
 - `value_precision`: decimal places for segment values
 - `total_precision`: decimal places for the center total
 - `charts`: one or two chart definitions

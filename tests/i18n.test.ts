@@ -12,6 +12,9 @@ describe("i18n", () => {
   it("returns translated UI copy", () => {
     expect(getTranslations("de-DE").production).toBe("Produktion");
     expect(getTranslations("en-US").production).toBe("Production");
+    expect(getTranslations("de-DE").segmentSpacingField).toBe("Segmentabstand");
+    expect(getTranslations("en-US").mediumSpacing).toBe("Medium");
+    expect(getTranslations("en-US").noSpacing).toBe("No spacing");
   });
 
   it("formats localized history errors", () => {

@@ -1,5 +1,6 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { getTranslations } from "./i18n";
 import type { HomeAssistant, LovelaceCardEditor } from "./types";
 
 interface SegmentConfig {
@@ -21,6 +22,7 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
+  segment_spacing?: "relaxed" | "compact" | "none";
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
@@ -159,6 +161,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
   @state() private config: CardConfig = {
     type: "custom:pv-energy-donut-card",
     mode: "simple",
+    segment_spacing: "relaxed",
     title: "",
     charts: [createDefaultChart(0)]
   };
@@ -181,6 +184,10 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
       title: config?.title ?? "",
       locale: config?.locale,
       mode: config?.mode === "time_navigator" ? "time_navigator" : "simple",
+      segment_spacing:
+        config?.segment_spacing === "compact" || config?.segment_spacing === "none"
+          ? config.segment_spacing
+          : "relaxed",
       value_precision: config?.value_precision,
       total_precision: config?.total_precision,
       charts: (config?.charts?.length ? config.charts : [createDefaultChart(0)]).map((chart, chartIndex) => ({
@@ -197,33 +204,45 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     };
   }
 
+  private get ui() {
+    return getTranslations(this.hass?.locale?.language);
+  }
+
   protected render() {
     const charts = this.config.charts ?? [createDefaultChart(0)];
 
     return html`
       <div class="stack">
         <div class="card">
-          <div class="section-title">Card</div>
+          <div class="section-title">${this.ui.cardEditorSection}</div>
           <div class="row two">
             <label>
-              Card Title
+              ${this.ui.cardTitleField}
               <input
                 .value=${this.config.title ?? ""}
                 @input=${(event: InputEvent) => this.updateRootField("title", event)}
               />
             </label>
             <label>
-              Charts
+              ${this.ui.chartsField}
               <select .value=${String(charts.length)} @change=${this.handleChartCountChange}>
                 <option value="1">1 chart</option>
                 <option value="2">2 charts</option>
               </select>
             </label>
             <label>
-              Mode
+              ${this.ui.modeField}
               <select .value=${this.config.mode ?? "simple"} @change=${this.handleModeChange}>
-                <option value="simple">Simple</option>
-                <option value="time_navigator">Time Navigator</option>
+                <option value="simple">${this.ui.simpleMode}</option>
+                <option value="time_navigator">${this.ui.timeNavigatorMode}</option>
+              </select>
+            </label>
+            <label>
+              ${this.ui.segmentSpacingField}
+              <select .value=${this.config.segment_spacing ?? "relaxed"} @change=${this.handleSegmentSpacingChange}>
+                <option value="relaxed">${this.ui.largeSpacing}</option>
+                <option value="compact">${this.ui.mediumSpacing}</option>
+                <option value="none">${this.ui.noSpacing}</option>
               </select>
             </label>
           </div>
@@ -240,21 +259,21 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     return html`
       <div class="card">
         <div class="chart-header">
-          <div class="section-title">Chart ${chartIndex + 1}</div>
+          <div class="section-title">${this.ui.chartField} ${chartIndex + 1}</div>
         </div>
         <div class="row two">
           <label>
-            Key
+            ${this.ui.keyField}
             <input .value=${chart.key ?? ""} @input=${(event: InputEvent) => this.updateChartField(chartIndex, "key", event)} />
           </label>
           <label>
-            Title
+            ${this.ui.titleField}
             <input .value=${chart.title ?? ""} @input=${(event: InputEvent) => this.updateChartField(chartIndex, "title", event)} />
           </label>
         </div>
         <div class="row two">
           <label>
-            Unit
+            ${this.ui.unitField}
             <input .value=${chart.unit ?? "kWh"} @input=${(event: InputEvent) => this.updateChartField(chartIndex, "unit", event)} />
           </label>
         </div>
@@ -264,7 +283,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
         </div>
 
         <div class="actions">
-          <button ?disabled=${segments.length >= 6} @click=${() => this.addSegment(chartIndex)}>Add Segment</button>
+          <button ?disabled=${segments.length >= 6} @click=${() => this.addSegment(chartIndex)}>${this.ui.addSegment}</button>
         </div>
       </div>
     `;
@@ -274,31 +293,31 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     return html`
       <div class="segment">
         <div class="segment-header">
-          <strong>Segment ${segmentIndex + 1}</strong>
-          <button @click=${() => this.removeSegment(chartIndex, segmentIndex)}>Remove</button>
+          <strong>${this.ui.segmentField} ${segmentIndex + 1}</strong>
+          <button @click=${() => this.removeSegment(chartIndex, segmentIndex)}>${this.ui.remove}</button>
         </div>
         <div class="row">
           <label>
-            Entity
+            ${this.ui.entityField}
             ${this.renderEntityField(chartIndex, segmentIndex, segment.entity ?? "")}
           </label>
         </div>
         <div class="row">
           <label>
-            Daily Entity
+            ${this.ui.dailyEntityField}
             ${this.renderDailyEntityField(chartIndex, segmentIndex, segment.daily_entity ?? "")}
           </label>
         </div>
         <div class="row two">
           <label>
-            Label
+            ${this.ui.labelField}
             <input
               .value=${segment.label ?? ""}
               @input=${(event: InputEvent) => this.updateSegmentField(chartIndex, segmentIndex, "label", event)}
             />
           </label>
           <label>
-            Color
+            ${this.ui.colorField}
             <input
               type="color"
               .value=${segment.color ?? DEFAULT_SEGMENT_COLORS[segmentIndex % DEFAULT_SEGMENT_COLORS.length]}
@@ -334,7 +353,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
       <input
         list=${listId}
         .value=${value}
-        placeholder="Optional for time navigator, preferred for simple"
+        placeholder=${this.ui.dailyEntityPlaceholder}
         @input=${(event: InputEvent) => this.updateSegmentField(chartIndex, segmentIndex, "daily_entity", event)}
       />
       <datalist id=${listId}>
@@ -373,6 +392,16 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     this.emitConfig({
       ...this.config,
       mode: select.value === "time_navigator" ? "time_navigator" : "simple"
+    });
+  }
+
+  private handleSegmentSpacingChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const segmentSpacing =
+      select.value === "compact" || select.value === "none" ? select.value : "relaxed";
+    this.emitConfig({
+      ...this.config,
+      segment_spacing: segmentSpacing
     });
   }
 

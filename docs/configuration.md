@@ -8,6 +8,7 @@
 | `title` | string | no |  | Optional card title |
 | `locale` | string | no | HA locale | Overrides number formatting locale |
 | `mode` | string | no | `simple` | `simple` uses current entity states, `time_navigator` adds day/month/year navigation |
+| `segment_spacing` | string | no | `relaxed` | Controls the gap between donut segments: `relaxed`, `compact`, or `none` |
 | `value_precision` | number | no | `1` | Decimal places for segment values |
 | `total_precision` | number | no | `1` | Decimal places for center total |
 | `charts` | array | yes |  | One or two chart definitions |
