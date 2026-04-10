@@ -14,6 +14,7 @@ const previewIntro = document.querySelector("[data-preview-intro]");
 const previewSettings = {
   width: 860,
   mode: "simple",
+  segmentSpacing: "relaxed",
   language: "de",
   theme: "dark"
 };
@@ -25,6 +26,8 @@ const translations = {
     cardMode: "Kartenmodus",
     cardModeLabel: "Modus",
     cardModeSubtitle: "Wechsle zwischen der einfachen Ansicht und dem neuen Zeitnavigator",
+    chartSpacing: "Segmentabstand",
+    chartSpacingSubtitle: "Wähle zwischen großem, mittlerem oder keinem Abstand zwischen den Donut-Segmenten",
     cardTitle: "PV-Energieübersicht",
     cardWidth: "Kartenbreite",
     consumption: "Verbrauch",
@@ -42,6 +45,9 @@ const translations = {
     previewWidthSubtitle: "Simuliere schmale Kartenbreiten wie auf mobilen Geräten",
     production: "Produktion",
     pvSelfConsumption: "PV-Eigenverbrauch",
+    spacingCompact: "Mittel",
+    spacingNone: "Kein Abstand",
+    spacingRelaxed: "Groß",
     sliderSubtitle: "Passe die drei Werte in {unit} live an"
   },
   en: {
@@ -50,6 +56,8 @@ const translations = {
     cardMode: "Card mode",
     cardModeLabel: "Mode",
     cardModeSubtitle: "Switch between the simple view and the new period navigator",
+    chartSpacing: "Segment spacing",
+    chartSpacingSubtitle: "Choose between large, medium, or no gap between the donut segments",
     cardTitle: "PV Energy Overview",
     cardWidth: "Card width",
     consumption: "Consumption",
@@ -67,6 +75,9 @@ const translations = {
     previewWidthSubtitle: "Simulate narrow card widths like mobile devices",
     production: "Production",
     pvSelfConsumption: "PV self-consumption",
+    spacingCompact: "Medium",
+    spacingNone: "No spacing",
+    spacingRelaxed: "Large",
     sliderSubtitle: "Adjust the three values in {unit} live"
   }
 };
@@ -190,6 +201,7 @@ const config = {
   type: "custom:pv-energy-donut-card",
   title: "",
   mode: "simple",
+  segment_spacing: "relaxed",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -332,6 +344,7 @@ const renderCard = () => {
     nextCard.style.setProperty(property, value);
   }
   config.mode = previewSettings.mode;
+  config.segment_spacing = previewSettings.segmentSpacing;
   nextCard.setConfig(config);
   nextCard.hass = createPreviewHass();
   const stage = document.createElement("div");
@@ -543,6 +556,55 @@ const createModeControl = () => {
   return section;
 };
 
+const createSpacingControl = () => {
+  const text = getText();
+  const section = document.createElement("section");
+  section.className = "control-panel";
+
+  const heading = document.createElement("div");
+  heading.className = "control-panel-heading";
+  heading.textContent = text.chartSpacing;
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "control-panel-subtitle";
+  subtitle.textContent = text.chartSpacingSubtitle;
+
+  const row = document.createElement("label");
+  row.className = "control-row";
+
+  const title = document.createElement("span");
+  title.className = "control-label";
+  title.textContent = text.chartSpacing;
+
+  const select = document.createElement("select");
+  select.className = "control-slider";
+  select.style.setProperty("--accent", "#7fc8ff");
+
+  const relaxedOption = document.createElement("option");
+  relaxedOption.value = "relaxed";
+  relaxedOption.textContent = text.spacingRelaxed;
+
+  const compactOption = document.createElement("option");
+  compactOption.value = "compact";
+  compactOption.textContent = text.spacingCompact;
+
+  const noneOption = document.createElement("option");
+  noneOption.value = "none";
+  noneOption.textContent = text.spacingNone;
+
+  select.append(relaxedOption, compactOption, noneOption);
+  select.value = previewSettings.segmentSpacing;
+  select.addEventListener("change", () => {
+    previewSettings.segmentSpacing =
+      select.value === "compact" || select.value === "none" ? select.value : "relaxed";
+    updateCard();
+  });
+
+  row.append(title, select);
+  section.append(heading, subtitle, row);
+  return section;
+};
+
 const createLanguageSwitcher = () => {
   const text = getText();
   const wrapper = document.createElement("div");
@@ -615,6 +677,7 @@ const renderControls = () => {
   controlsRoot.replaceChildren();
   controlsRoot?.append(createPreviewWidthControl());
   controlsRoot?.append(createModeControl());
+  controlsRoot?.append(createSpacingControl());
 
   for (const group of getSliderGroups()) {
     const section = document.createElement("section");
