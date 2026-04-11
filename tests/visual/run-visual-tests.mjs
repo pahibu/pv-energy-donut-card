@@ -205,7 +205,8 @@ const run = async () => {
       await page.setViewport(scenario.viewport);
       await page.emulateTimezone("UTC");
       await installFixedDate(page);
-      await page.goto(`${baseUrl}/tests/visual/harness.html?scenario=${encodeURIComponent(scenarioName)}`, {
+      const scenarioPage = scenario.page ?? "harness.html";
+      await page.goto(`${baseUrl}/tests/visual/${scenarioPage}?scenario=${encodeURIComponent(scenarioName)}`, {
         waitUntil: "networkidle0"
       });
       await page.waitForFunction(() => window.__PV_VISUAL_READY__ === true, {
