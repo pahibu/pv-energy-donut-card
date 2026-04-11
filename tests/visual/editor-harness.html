@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pv-energy-donut-card Editor Visual Harness</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background:
+          radial-gradient(circle at top, rgba(65, 156, 255, 0.16), transparent 34%),
+          linear-gradient(180deg, #09111b, #111824);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 36px;
+      }
+
+      [data-stage] {
+        width: min(100%, 980px);
+        margin: 0 auto;
+      }
+
+      [data-visual-root] {
+        display: block;
+        padding: 18px 20px 24px;
+        border: 1px solid rgba(158, 176, 196, 0.18);
+        border-radius: 24px;
+        background: rgba(9, 17, 27, 0.78);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      }
+    </style>
+  </head>
+  <body>
+    <main data-stage></main>
+    <script type="module" src="./editor-harness.mjs"></script>
+  </body>
+</html>
