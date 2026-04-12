@@ -65,6 +65,28 @@ The GitHub Actions workflow in `.github/workflows/visual.yml` runs these checks 
 > [!NOTE]
 > Visual snapshots can differ slightly between platforms, especially between macOS and Ubuntu-based GitHub runners because of font rendering and browser rasterization differences. Treat the GitHub Actions run on Linux as the authoritative reference for CI, and update committed golden images to match that environment when needed.
 
+To regenerate the documentation screenshots for the English and German README variants:
+
+```bash
+npm run screenshots:docs
+```
+
+The generated card screenshots are written to:
+
+```text
+docs/images/en/screenshots/midnight-stage/
+docs/images/en/screenshots/aurora-noir/
+docs/images/de/screenshots/midnight-stage/
+docs/images/de/screenshots/aurora-noir/
+```
+
+Edited language-specific artwork such as banners or social preview images can be stored alongside them in:
+
+```text
+docs/images/en/showcase/
+docs/images/de/showcase/
+```
+
 The production bundle is generated at:
 
 ```text

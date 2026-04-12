@@ -17,6 +17,7 @@
     "dev:preview": "node scripts/dev-preview.mjs",
     "lint": "tsc --noEmit",
     "test": "vitest run",
+    "screenshots:docs": "node tests/visual/export-doc-screenshots.mjs",
     "test:visual": "node tests/visual/run-visual-tests.mjs",
     "test:visual:update": "node tests/visual/run-visual-tests.mjs --update",
     "test:coverage": "vitest run --coverage",
