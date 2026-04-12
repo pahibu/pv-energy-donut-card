@@ -1,4 +1,4 @@
-const sharedTheme = {
+export const sharedTheme = {
   "--ha-card-background": "rgba(9, 17, 27, 0.78)",
   "--card-background-color": "rgba(9, 17, 27, 0.78)",
   "--ha-card-border-color": "rgba(158, 176, 196, 0.18)",
@@ -16,7 +16,7 @@ const editorTheme = {
   "--secondary-text-color": "#9eb0c4"
 };
 
-const createBaseConfig = () => ({
+export const createBaseConfig = () => ({
   type: "custom:pv-energy-donut-card",
   title: "PV Energy Overview",
   mode: "simple",
@@ -70,7 +70,7 @@ const createBaseConfig = () => ({
   ]
 });
 
-const createSingleChartConfig = () => ({
+export const createSingleChartConfig = () => ({
   type: "custom:pv-energy-donut-card",
   title: "PV Energy Overview",
   mode: "simple",
@@ -102,7 +102,7 @@ const createSingleChartConfig = () => ({
   ]
 });
 
-const createBaseStateValues = () => ({
+export const createBaseStateValues = () => ({
   "sensor.preview_feed_in_today": 4.6,
   "sensor.preview_battery_charge_today": 2.1,
   "sensor.preview_pv_self_use_production_today": 5.7,

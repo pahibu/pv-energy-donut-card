@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pv-energy-donut-card Docs Screenshot Harness</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      :root[data-background="midnight-stage"] {
+        --docs-shot-background:
+          radial-gradient(circle at top, rgba(65, 156, 255, 0.16), transparent 34%),
+          linear-gradient(180deg, #09111b, #111824);
+        background:
+          radial-gradient(circle at top, rgba(65, 156, 255, 0.16), transparent 34%),
+          linear-gradient(180deg, #09111b, #111824);
+      }
+
+      :root[data-background="aurora-noir"] {
+        --docs-shot-background:
+          radial-gradient(circle at 18% 22%, rgba(42, 97, 119, 0.34), transparent 32%),
+          radial-gradient(circle at 50% 26%, rgba(58, 32, 93, 0.30), transparent 34%),
+          radial-gradient(circle at 82% 28%, rgba(122, 49, 57, 0.26), transparent 30%),
+          linear-gradient(135deg, #131a2a 0%, #1a1f30 28%, #24182f 52%, #2b253b 72%, #1d2334 100%);
+        background:
+          radial-gradient(circle at 18% 22%, rgba(42, 97, 119, 0.34), transparent 32%),
+          radial-gradient(circle at 50% 26%, rgba(58, 32, 93, 0.30), transparent 34%),
+          radial-gradient(circle at 82% 28%, rgba(122, 49, 57, 0.26), transparent 30%),
+          linear-gradient(135deg, #131a2a 0%, #1a1f30 28%, #24182f 52%, #2b253b 72%, #1d2334 100%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 36px;
+      }
+
+      [data-shot-frame] {
+        width: min(100%, calc(var(--visual-card-width, 920px) + 120px));
+        margin: 0 auto;
+        padding: 48px;
+        border-radius: 32px;
+        background: var(--docs-shot-background);
+        overflow: hidden;
+      }
+
+      [data-stage] {
+        width: min(100%, var(--visual-card-width, 920px));
+        margin: 0 auto;
+      }
+
+      ha-card {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <main data-shot-frame>
+      <div data-stage></div>
+    </main>
+    <script type="module" src="./docs-card-harness.mjs"></script>
+  </body>
+</html>

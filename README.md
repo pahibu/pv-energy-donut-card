@@ -1,4 +1,4 @@
-![PV Energy Donut Card banner](docs/images/banner-preview.png)
+![PV Energy Donut Card banner](docs/images/en/showcase/pv-energy-donut-card-readme-banner.png)
 
 ![Home Assistant](https://img.shields.io/badge/home%20assistant-2026.1%2B-41BDF5)
 ![TypeScript](https://img.shields.io/badge/typescript-5.x-3178C6)
@@ -26,15 +26,31 @@ A polished Home Assistant Lovelace custom card for photovoltaic energy dashboard
 
 ### Simple Mode
 
-![Simple mode preview](docs/screenshots/simple-preview.png)
+![Simple mode preview](docs/images/en/screenshots/midnight-stage/mode-simple.png)
 
 ### Time Navigator
 
-![Time navigator preview](docs/screenshots/time-navigator-preview.png)
+![Time navigator preview](docs/images/en/screenshots/midnight-stage/mode-time-navigator.png)
 
 ### Time Navigator Side-by-Side
 
-![Time navigator horizontal preview](docs/screenshots/time-navigator-horizontal-preview.png)
+![Time navigator horizontal preview](docs/images/en/screenshots/midnight-stage/charts-two-horizontal-time-navigator.png)
+
+### Segment Spacing
+
+Choose between `relaxed`, `compact`, and `none` depending on how much separation you want between donut segments.
+
+`relaxed`
+
+![Relaxed segment spacing](docs/images/en/screenshots/midnight-stage/spacing-relaxed.png)
+
+`compact`
+
+![Compact segment spacing](docs/images/en/screenshots/midnight-stage/spacing-compact.png)
+
+`none`
+
+![No segment spacing](docs/images/en/screenshots/midnight-stage/spacing-none.png)
 
 ## 🧭 Modes
 
