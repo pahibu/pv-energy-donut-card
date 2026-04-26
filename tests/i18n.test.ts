@@ -12,6 +12,11 @@ describe("i18n", () => {
   it("returns translated UI copy", () => {
     expect(getTranslations("de-DE").production).toBe("Produktion");
     expect(getTranslations("en-US").production).toBe("Production");
+    expect(getTranslations("de-DE").ringSizeField).toBe("Ringgröße");
+    expect(getTranslations("en-US").thinRing).toBe("Thin");
+    expect(getTranslations("en-US").airyRing).toBe("Airy");
+    expect(getTranslations("de-DE").balancedRing).toBe("Ausgewogen");
+    expect(getTranslations("en-US").boldRing).toBe("Bold");
     expect(getTranslations("de-DE").segmentSpacingField).toBe("Segmentabstand");
     expect(getTranslations("en-US").mediumSpacing).toBe("Medium");
     expect(getTranslations("en-US").noSpacing).toBe("No spacing");

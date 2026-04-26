@@ -103,7 +103,8 @@ export class DonutRenderer {
     const availableWidth = Math.max(1, this.canvas.clientWidth - horizontalPadding * 2);
     const availableHeight = Math.max(1, this.canvas.clientHeight - verticalPadding * 2);
     const outerRadius = Math.max(1, Math.min(availableWidth, availableHeight) / 2);
-    const cutoutRatio = 0.76;
+    const styles = getComputedStyle(this.canvas);
+    const cutoutRatio = this.readCssNumber(styles, "--pv-chart-cutout", 76) / 100;
     return outerRadius * ((1 + cutoutRatio) / 2);
   }
 
@@ -196,6 +197,7 @@ export class DonutRenderer {
     const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 0.5);
     const separatorWidth = this.readCssNumber(styles, "--pv-chart-separator-width", 5);
     const minimumSegmentSeparatorFactor = this.readCssNumber(styles, "--pv-chart-min-segment-separator-factor", 1.5);
+    const cutout = `${this.readCssNumber(styles, "--pv-chart-cutout", 76)}%`;
     // Reserve the visible mini segment plus a configurable share of separator space.
     const minimumVisibleArc = minimumSegmentWidth + separatorWidth * minimumSegmentSeparatorFactor;
     if (!this.chart) {
@@ -216,7 +218,7 @@ export class DonutRenderer {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: "76%",
+          cutout,
           layout: {
             padding: {
               top: verticalPadding,
@@ -271,6 +273,7 @@ export class DonutRenderer {
         left: horizontalPadding
       };
     }
+    this.chart.options.cutout = cutout;
     this.chart.update("none");
   }
 

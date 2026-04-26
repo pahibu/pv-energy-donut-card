@@ -14,6 +14,7 @@ const previewIntro = document.querySelector("[data-preview-intro]");
 const previewSettings = {
   width: 860,
   mode: "simple",
+  ringSize: "balanced",
   segmentSpacing: "relaxed",
   language: "de",
   theme: "dark"
@@ -26,6 +27,8 @@ const translations = {
     cardMode: "Kartenmodus",
     cardModeLabel: "Modus",
     cardModeSubtitle: "Wechsle zwischen der einfachen Ansicht und dem neuen Zeitnavigator",
+    chartRingSize: "Ringgröße",
+    chartRingSizeSubtitle: "Wähle zwischen einem feinen, luftigen, ausgewogenen oder kräftigeren Donut-Ring",
     chartSpacing: "Segmentabstand",
     chartSpacingSubtitle: "Wähle zwischen großem, mittlerem oder keinem Abstand zwischen den Donut-Segmenten",
     cardTitle: "PV-Energieübersicht",
@@ -45,6 +48,10 @@ const translations = {
     previewWidthSubtitle: "Simuliere schmale Kartenbreiten wie auf mobilen Geräten",
     production: "Produktion",
     pvSelfConsumption: "PV-Eigenverbrauch",
+    ringThin: "Fein",
+    ringAiry: "Luftig",
+    ringBalanced: "Ausgewogen",
+    ringBold: "Kräftig",
     spacingCompact: "Mittel",
     spacingNone: "Kein Abstand",
     spacingRelaxed: "Groß",
@@ -56,6 +63,8 @@ const translations = {
     cardMode: "Card mode",
     cardModeLabel: "Mode",
     cardModeSubtitle: "Switch between the simple view and the new period navigator",
+    chartRingSize: "Ring size",
+    chartRingSizeSubtitle: "Choose between a thinner, airy, balanced, or bolder donut ring",
     chartSpacing: "Segment spacing",
     chartSpacingSubtitle: "Choose between large, medium, or no gap between the donut segments",
     cardTitle: "PV Energy Overview",
@@ -75,6 +84,10 @@ const translations = {
     previewWidthSubtitle: "Simulate narrow card widths like mobile devices",
     production: "Production",
     pvSelfConsumption: "PV self-consumption",
+    ringThin: "Thin",
+    ringAiry: "Airy",
+    ringBalanced: "Balanced",
+    ringBold: "Bold",
     spacingCompact: "Medium",
     spacingNone: "No spacing",
     spacingRelaxed: "Large",
@@ -201,6 +214,7 @@ const config = {
   type: "custom:pv-energy-donut-card",
   title: "",
   mode: "simple",
+  ring_size: "balanced",
   segment_spacing: "relaxed",
   value_precision: 1,
   total_precision: 1,
@@ -344,6 +358,7 @@ const renderCard = () => {
     nextCard.style.setProperty(property, value);
   }
   config.mode = previewSettings.mode;
+  config.ring_size = previewSettings.ringSize;
   config.segment_spacing = previewSettings.segmentSpacing;
   nextCard.setConfig(config);
   nextCard.hass = createPreviewHass();
@@ -605,6 +620,59 @@ const createSpacingControl = () => {
   return section;
 };
 
+const createRingSizeControl = () => {
+  const text = getText();
+  const section = document.createElement("section");
+  section.className = "control-panel";
+
+  const heading = document.createElement("div");
+  heading.className = "control-panel-heading";
+  heading.textContent = text.chartRingSize;
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "control-panel-subtitle";
+  subtitle.textContent = text.chartRingSizeSubtitle;
+
+  const row = document.createElement("label");
+  row.className = "control-row";
+
+  const title = document.createElement("span");
+  title.className = "control-label";
+  title.textContent = text.chartRingSize;
+
+  const select = document.createElement("select");
+  select.className = "control-slider";
+  select.style.setProperty("--accent", "#7fc8ff");
+
+  const thinOption = document.createElement("option");
+  thinOption.value = "thin";
+  thinOption.textContent = text.ringThin;
+
+  const airyOption = document.createElement("option");
+  airyOption.value = "airy";
+  airyOption.textContent = text.ringAiry;
+
+  const balancedOption = document.createElement("option");
+  balancedOption.value = "balanced";
+  balancedOption.textContent = text.ringBalanced;
+
+  const boldOption = document.createElement("option");
+  boldOption.value = "bold";
+  boldOption.textContent = text.ringBold;
+
+  select.append(thinOption, airyOption, balancedOption, boldOption);
+  select.value = previewSettings.ringSize;
+  select.addEventListener("change", () => {
+    previewSettings.ringSize =
+      select.value === "thin" || select.value === "airy" || select.value === "bold" ? select.value : "balanced";
+    updateCard();
+  });
+
+  row.append(title, select);
+  section.append(heading, subtitle, row);
+  return section;
+};
+
 const createLanguageSwitcher = () => {
   const text = getText();
   const wrapper = document.createElement("div");
@@ -677,6 +745,7 @@ const renderControls = () => {
   controlsRoot.replaceChildren();
   controlsRoot?.append(createPreviewWidthControl());
   controlsRoot?.append(createModeControl());
+  controlsRoot?.append(createRingSizeControl());
   controlsRoot?.append(createSpacingControl());
 
   for (const group of getSliderGroups()) {

@@ -33,6 +33,7 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
+  ring_size?: "thin" | "airy" | "balanced" | "bold";
   segment_spacing?: "relaxed" | "compact" | "none";
   value_precision?: number;
   total_precision?: number;
@@ -58,6 +59,7 @@ interface NormalizedCardConfig {
   title?: string;
   locale?: string;
   mode: CardMode;
+  ringSize: "thin" | "airy" | "balanced" | "bold";
   segmentSpacing: "relaxed" | "compact" | "none";
   valuePrecision: number;
   totalPrecision: number;
@@ -97,11 +99,30 @@ const normalizeConfig = (config: CardConfig): NormalizedCardConfig => ({
   title: config.title?.trim(),
   locale: config.locale?.trim(),
   mode: config.mode === "time_navigator" ? "time_navigator" : "simple",
+  ringSize:
+    config.ring_size === "thin" || config.ring_size === "airy" || config.ring_size === "bold"
+      ? config.ring_size
+      : "balanced",
   segmentSpacing: config.segment_spacing === "compact" || config.segment_spacing === "none" ? config.segment_spacing : "relaxed",
   valuePrecision: Number.isInteger(config.value_precision) ? Math.max(0, config.value_precision ?? 0) : 1,
   totalPrecision: Number.isInteger(config.total_precision) ? Math.max(0, config.total_precision ?? 0) : 1,
   charts: normalizeCharts(config.charts)
 });
+
+const RING_SIZE_TOKENS: Record<NormalizedCardConfig["ringSize"], { cutout: string }> = {
+  thin: {
+    cutout: "88"
+  },
+  airy: {
+    cutout: "82"
+  },
+  balanced: {
+    cutout: "76"
+  },
+  bold: {
+    cutout: "68"
+  }
+};
 
 const SEGMENT_SPACING_TOKENS: Record<NormalizedCardConfig["segmentSpacing"], { separatorWidth: string; separatorFactor: string }> = {
   relaxed: {
@@ -193,6 +214,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
       this.configError = "invalid";
       this.config = {
         mode: "simple",
+        ringSize: "balanced",
         segmentSpacing: "relaxed",
         valuePrecision: 1,
         totalPrecision: 1,
@@ -203,6 +225,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
 
     const normalized = normalizeConfig(config);
     this.config = normalized;
+    this.applyRingSizeTokens(normalized.ringSize);
     this.applySegmentSpacingTokens(normalized.segmentSpacing);
     this.periodCache.clear();
     this.periodValues = new Map();
@@ -214,6 +237,11 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     this.configError = normalized.charts.length
       ? undefined
       : "missing_charts";
+  }
+
+  private applyRingSizeTokens(ringSize: NormalizedCardConfig["ringSize"]): void {
+    const tokens = RING_SIZE_TOKENS[ringSize];
+    this.style.setProperty("--pv-chart-cutout", tokens.cutout);
   }
 
   private applySegmentSpacingTokens(segmentSpacing: NormalizedCardConfig["segmentSpacing"]): void {

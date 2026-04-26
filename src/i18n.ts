@@ -3,8 +3,11 @@ export type SupportedLanguage = "de" | "en";
 export interface UiTranslations {
   addChartsError: string;
   addSegment: string;
+  airyRing: string;
   batteryCharge: string;
   batteryDischarge: string;
+  balancedRing: string;
+  boldRing: string;
   cardEditorSection: string;
   cardConfigInvalid: string;
   cardConfigUnavailable: string;
@@ -34,9 +37,11 @@ export interface UiTranslations {
   pvSelfConsumption: string;
   nextPeriodAriaLabel: string;
   remove: string;
+  ringSizeField: string;
   segmentField: string;
   segmentSpacingField: string;
   simpleMode: string;
+  thinRing: string;
   timeNavigatorMode: string;
   titleField: string;
   unitField: string;
@@ -47,8 +52,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
   de: {
     addChartsError: "Füge ein oder zwei Diagramme mit mindestens einem Segment hinzu.",
     addSegment: "Segment hinzufügen",
+    airyRing: "Luftig",
     batteryCharge: "Batterieladung",
     batteryDischarge: "Batterieentladung",
+    balancedRing: "Ausgewogen",
+    boldRing: "Kräftig",
     cardEditorSection: "Karte",
     cardConfigInvalid: "Die Kartenkonfiguration fehlt oder ist ungültig.",
     cardConfigUnavailable: "Die Kartenkonfiguration ist nicht verfügbar.",
@@ -78,9 +86,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
     production: "Produktion",
     pvSelfConsumption: "PV-Eigenverbrauch",
     remove: "Entfernen",
+    ringSizeField: "Ringgröße",
     segmentField: "Segment",
     segmentSpacingField: "Segmentabstand",
     simpleMode: "Einfach",
+    thinRing: "Fein",
     timeNavigatorMode: "Zeitnavigator",
     titleField: "Titel",
     unitField: "Einheit",
@@ -89,8 +99,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
   en: {
     addChartsError: "Add one or two charts with at least one segment each.",
     addSegment: "Add Segment",
+    airyRing: "Airy",
     batteryCharge: "Battery charge",
     batteryDischarge: "Battery discharge",
+    balancedRing: "Balanced",
+    boldRing: "Bold",
     cardEditorSection: "Card",
     cardConfigInvalid: "Card configuration is missing or invalid.",
     cardConfigUnavailable: "Card configuration not available.",
@@ -120,9 +133,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
     production: "Production",
     pvSelfConsumption: "PV self-consumption",
     remove: "Remove",
+    ringSizeField: "Ring size",
     segmentField: "Segment",
     segmentSpacingField: "Segment spacing",
     simpleMode: "Simple",
+    thinRing: "Thin",
     timeNavigatorMode: "Time Navigator",
     titleField: "Title",
     unitField: "Unit",

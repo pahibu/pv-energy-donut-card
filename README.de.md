@@ -54,6 +54,26 @@ Wähle zwischen `relaxed`, `compact` und `none`, je nachdem wie stark die Segmen
 
 ![Kein Segmentabstand](docs/images/de/screenshots/midnight-stage/spacing-none.png)
 
+### Ringgröße
+
+Wähle zwischen `thin`, `airy`, `balanced` und `bold`, je nachdem ob der Donut-Ring feiner, luftiger, ausgewogener oder kräftiger wirken soll.
+
+`thin`
+
+![Feiner Donut-Ring](docs/images/de/screenshots/midnight-stage/ring-thin.png)
+
+`airy`
+
+![Luftiger Donut-Ring](docs/images/de/screenshots/midnight-stage/ring-airy.png)
+
+`balanced`
+
+![Ausgewogener Donut-Ring](docs/images/de/screenshots/midnight-stage/ring-balanced.png)
+
+`bold`
+
+![Kräftiger Donut-Ring](docs/images/de/screenshots/midnight-stage/ring-bold.png)
+
 ## Modi
 
 ### `simple`
@@ -120,6 +140,7 @@ type: module
 type: custom:pv-energy-donut-card
 title: PV Energy Overview
 mode: simple
+ring_size: balanced
 segment_spacing: relaxed
 value_precision: 1
 total_precision: 1
@@ -165,6 +186,7 @@ charts:
 - `title`: optionaler Kartentitel
 - `locale`: optionale Überschreibung für Zahlenformatierung
 - `mode`: `simple` oder `time_navigator`
+- `ring_size`: `thin`, `airy`, `balanced` oder `bold`
 - `segment_spacing`: `relaxed`, `compact` oder `none`
 - `value_precision`: Nachkommastellen für Segmentwerte
 - `total_precision`: Nachkommastellen für den zentralen Summenwert

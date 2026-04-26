@@ -15,6 +15,17 @@ const createHass = (language: string): HomeAssistant => ({
   }
 });
 
+const getRingSizeSelect = (editor: EditorElement): HTMLSelectElement | null => {
+  const selects = Array.from(editor.shadowRoot?.querySelectorAll("select") ?? []);
+  return (
+    selects.find((select) =>
+      ["thin", "airy", "balanced", "bold"].every((value) =>
+        Array.from(select.querySelectorAll("option")).some((option) => option.value === value)
+      )
+    ) ?? null
+  );
+};
+
 const getSpacingSelect = (editor: EditorElement): HTMLSelectElement | null => {
   const selects = Array.from(editor.shadowRoot?.querySelectorAll("select") ?? []);
   return (
@@ -53,6 +64,55 @@ describe("pv-energy-donut-card-editor", () => {
 
     const spacingSelect = getSpacingSelect(editor);
     expect(spacingSelect?.value).toBe("relaxed");
+    editor.remove();
+  });
+
+  it("defaults unknown ring size values to balanced", async () => {
+    const editor = createEditor();
+    editor.setConfig?.({
+      type: "custom:pv-energy-donut-card",
+      ring_size: "invalid",
+      charts: [
+        {
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+    document.body.append(editor);
+    await waitForEditorRender(editor);
+
+    const ringSizeSelect = getRingSizeSelect(editor);
+    expect(ringSizeSelect?.value).toBe("balanced");
+    editor.remove();
+  });
+
+  it("emits config-changed when ring size is updated", async () => {
+    const editor = createEditor();
+    editor.hass = createHass("en-US");
+    editor.setConfig?.({
+      type: "custom:pv-energy-donut-card",
+      ring_size: "balanced",
+      charts: [
+        {
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+    document.body.append(editor);
+    await waitForEditorRender(editor);
+
+    const emitted: Array<{ ring_size?: string }> = [];
+    editor.addEventListener("config-changed", ((event: CustomEvent) => {
+      emitted.push(event.detail.config);
+    }) as EventListener);
+
+    const ringSizeSelect = getRingSizeSelect(editor);
+    expect(ringSizeSelect).toBeDefined();
+
+    ringSizeSelect.value = "bold";
+    ringSizeSelect.dispatchEvent(new Event("change"));
+
+    expect(emitted.at(-1)?.ring_size).toBe("bold");
     editor.remove();
   });
 
@@ -101,6 +161,11 @@ describe("pv-energy-donut-card-editor", () => {
     await waitForEditorRender(editor);
 
     const text = editor.shadowRoot?.textContent ?? "";
+    expect(text).toContain("Ringgröße");
+    expect(text).toContain("Fein");
+    expect(text).toContain("Luftig");
+    expect(text).toContain("Ausgewogen");
+    expect(text).toContain("Kräftig");
     expect(text).toContain("Segmentabstand");
     expect(text).toContain("Groß");
     expect(text).toContain("Mittel");
