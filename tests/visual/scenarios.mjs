@@ -20,6 +20,7 @@ export const createBaseConfig = () => ({
   type: "custom:pv-energy-donut-card",
   title: "PV Energy Overview",
   mode: "simple",
+  ring_size: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -74,6 +75,7 @@ export const createSingleChartConfig = () => ({
   type: "custom:pv-energy-donut-card",
   title: "PV Energy Overview",
   mode: "simple",
+  ring_size: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -175,6 +177,54 @@ export const visualScenarios = {
     },
     stateValues: createBaseStateValues()
   },
+  "ring-airy": {
+    snapshotName: "ring-airy",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      ring_size: "airy"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "ring-thin": {
+    snapshotName: "ring-thin",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      ring_size: "thin"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "ring-bold": {
+    snapshotName: "ring-bold",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      ring_size: "bold"
+    },
+    stateValues: createBaseStateValues()
+  },
   "single-chart-simple": {
     snapshotName: "single-chart-simple",
     viewport: {
@@ -261,6 +311,21 @@ export const visualScenarios = {
     config: {
       ...createBaseConfig(),
       segment_spacing: "compact"
+    }
+  },
+  "editor-en-ring-size": {
+    snapshotName: "editor-en-ring-size",
+    page: "editor-harness.html",
+    viewport: {
+      width: 1180,
+      height: 1200,
+      deviceScaleFactor: 1
+    },
+    locale: "en-US",
+    theme: editorTheme,
+    config: {
+      ...createBaseConfig(),
+      ring_size: "bold"
     }
   }
 };

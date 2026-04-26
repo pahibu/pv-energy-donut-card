@@ -161,6 +161,54 @@ const createLanguageScenarios = (language, locale) => {
         segment_spacing: "none"
       },
       stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "ring-thin.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        ring_size: "thin"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "ring-airy.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        ring_size: "airy"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "ring-balanced.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        ring_size: "balanced"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "ring-bold.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        ring_size: "bold"
+      },
+      stateValues: createBaseStateValues()
     }
   ];
 };

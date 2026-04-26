@@ -8,6 +8,7 @@
 | `title` | string | no |  | Optional card title |
 | `locale` | string | no | HA locale | Overrides number formatting locale |
 | `mode` | string | no | `simple` | `simple` uses current entity states, `time_navigator` adds day/month/year navigation |
+| `ring_size` | string | no | `balanced` | Controls the donut ring thickness: `thin`, `airy`, `balanced`, or `bold` |
 | `segment_spacing` | string | no | `relaxed` | Controls the gap between donut segments: `relaxed`, `compact`, or `none` |
 | `value_precision` | number | no | `1` | Decimal places for segment values |
 | `total_precision` | number | no | `1` | Decimal places for center total |

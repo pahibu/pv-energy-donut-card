@@ -22,6 +22,7 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
+  ring_size?: "thin" | "airy" | "balanced" | "bold";
   segment_spacing?: "relaxed" | "compact" | "none";
   value_precision?: number;
   total_precision?: number;
@@ -161,6 +162,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
   @state() private config: CardConfig = {
     type: "custom:pv-energy-donut-card",
     mode: "simple",
+    ring_size: "balanced",
     segment_spacing: "relaxed",
     title: "",
     charts: [createDefaultChart(0)]
@@ -184,6 +186,10 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
       title: config?.title ?? "",
       locale: config?.locale,
       mode: config?.mode === "time_navigator" ? "time_navigator" : "simple",
+      ring_size:
+        config?.ring_size === "thin" || config?.ring_size === "airy" || config?.ring_size === "bold"
+          ? config.ring_size
+          : "balanced",
       segment_spacing:
         config?.segment_spacing === "compact" || config?.segment_spacing === "none"
           ? config.segment_spacing
@@ -235,6 +241,15 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
               <select .value=${this.config.mode ?? "simple"} @change=${this.handleModeChange}>
                 <option value="simple">${this.ui.simpleMode}</option>
                 <option value="time_navigator">${this.ui.timeNavigatorMode}</option>
+              </select>
+            </label>
+            <label>
+              ${this.ui.ringSizeField}
+              <select .value=${this.config.ring_size ?? "balanced"} @change=${this.handleRingSizeChange}>
+                <option value="thin">${this.ui.thinRing}</option>
+                <option value="airy">${this.ui.airyRing}</option>
+                <option value="balanced">${this.ui.balancedRing}</option>
+                <option value="bold">${this.ui.boldRing}</option>
               </select>
             </label>
             <label>
@@ -402,6 +417,16 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     this.emitConfig({
       ...this.config,
       segment_spacing: segmentSpacing
+    });
+  }
+
+  private handleRingSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const ringSize =
+      select.value === "thin" || select.value === "airy" || select.value === "bold" ? select.value : "balanced";
+    this.emitConfig({
+      ...this.config,
+      ring_size: ringSize
     });
   }
 
