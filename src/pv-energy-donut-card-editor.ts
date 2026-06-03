@@ -3,6 +3,10 @@ import { customElement, property, state } from "lit/decorators.js";
 import { getTranslations } from "./i18n";
 import type { HomeAssistant, LovelaceCardEditor } from "./types";
 
+type RingSize = "thin" | "airy" | "balanced" | "bold";
+type SegmentSpacing = "relaxed" | "compact" | "none";
+type LabelPreset = "balanced" | "compact" | "minimal" | "highlight";
+
 interface SegmentConfig {
   entity?: string;
   daily_entity?: string;
@@ -22,14 +26,21 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
-  ring_size?: "thin" | "airy" | "balanced" | "bold";
-  segment_spacing?: "relaxed" | "compact" | "none";
+  ring_size?: RingSize;
+  segment_spacing?: SegmentSpacing;
+  label_preset?: LabelPreset;
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
 }
 
 const DEFAULT_SEGMENT_COLORS = ["#5dade2", "#f5b041", "#58d68d", "#af7ac5", "#ec7063", "#ec7063"];
+const isRingSize = (value: unknown): value is RingSize =>
+  value === "thin" || value === "airy" || value === "balanced" || value === "bold";
+const isSegmentSpacing = (value: unknown): value is SegmentSpacing =>
+  value === "relaxed" || value === "compact" || value === "none";
+const isLabelPreset = (value: unknown): value is LabelPreset =>
+  value === "balanced" || value === "compact" || value === "minimal" || value === "highlight";
 
 const createDefaultSegment = (index: number): SegmentConfig => ({
   entity: "",
@@ -164,6 +175,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     mode: "simple",
     ring_size: "balanced",
     segment_spacing: "relaxed",
+    label_preset: "balanced",
     title: "",
     charts: [createDefaultChart(0)]
   };
@@ -186,14 +198,9 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
       title: config?.title ?? "",
       locale: config?.locale,
       mode: config?.mode === "time_navigator" ? "time_navigator" : "simple",
-      ring_size:
-        config?.ring_size === "thin" || config?.ring_size === "airy" || config?.ring_size === "bold"
-          ? config.ring_size
-          : "balanced",
-      segment_spacing:
-        config?.segment_spacing === "compact" || config?.segment_spacing === "none"
-          ? config.segment_spacing
-          : "relaxed",
+      ring_size: isRingSize(config?.ring_size) ? config.ring_size : "balanced",
+      segment_spacing: isSegmentSpacing(config?.segment_spacing) ? config.segment_spacing : "relaxed",
+      label_preset: isLabelPreset(config?.label_preset) ? config.label_preset : "balanced",
       value_precision: config?.value_precision,
       total_precision: config?.total_precision,
       charts: (config?.charts?.length ? config.charts : [createDefaultChart(0)]).map((chart, chartIndex) => ({
@@ -258,6 +265,15 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
                 <option value="relaxed">${this.ui.largeSpacing}</option>
                 <option value="compact">${this.ui.mediumSpacing}</option>
                 <option value="none">${this.ui.noSpacing}</option>
+              </select>
+            </label>
+            <label>
+              ${this.ui.labelPresetField}
+              <select .value=${this.config.label_preset ?? "balanced"} @change=${this.handleLabelPresetChange}>
+                <option value="balanced">${this.ui.labelPresetBalanced}</option>
+                <option value="compact">${this.ui.labelPresetCompact}</option>
+                <option value="minimal">${this.ui.labelPresetMinimal}</option>
+                <option value="highlight">${this.ui.labelPresetHighlight}</option>
               </select>
             </label>
           </div>
@@ -412,21 +428,25 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
 
   private handleSegmentSpacingChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    const segmentSpacing =
-      select.value === "compact" || select.value === "none" ? select.value : "relaxed";
     this.emitConfig({
       ...this.config,
-      segment_spacing: segmentSpacing
+      segment_spacing: isSegmentSpacing(select.value) ? select.value : "relaxed"
     });
   }
 
   private handleRingSizeChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    const ringSize =
-      select.value === "thin" || select.value === "airy" || select.value === "bold" ? select.value : "balanced";
     this.emitConfig({
       ...this.config,
-      ring_size: ringSize
+      ring_size: isRingSize(select.value) ? select.value : "balanced"
+    });
+  }
+
+  private handleLabelPresetChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.emitConfig({
+      ...this.config,
+      label_preset: isLabelPreset(select.value) ? select.value : "balanced"
     });
   }
 

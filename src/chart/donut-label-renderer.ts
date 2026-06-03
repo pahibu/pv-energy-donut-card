@@ -23,6 +23,13 @@ export interface DonutConnectorLabelTypography {
   wattFlowValue: DonutLabelVariant;
   orbitNoteText: DonutLabelVariant;
   lineWidth: number;
+  valueOpacity: number;
+  textOpacity: number;
+  segmentDarken: number;
+  valueGapScale: number;
+  rowGapScale: number;
+  labelOffsetScale: number;
+  collisionGapMin: number;
   valueGap: number;
   rowGap: number;
   topRowYShift: number;
@@ -62,6 +69,32 @@ const FONT_FAMILY = "ui-sans-serif, system-ui, sans-serif";
 const EDGE_MARGIN = 8;
 const MIN_LABEL_GAP = 50;
 const HOVER_PERCENT_SCALE = 1.02;
+
+interface TypographyStyleOptions {
+  percentWeight: number;
+  valueWeight: number;
+  textWeight: number;
+  valueGapScale: number;
+  rowGapScale: number;
+  labelOffsetScale: number;
+  collisionGapMin: number;
+  segmentDarken: number;
+  valueOpacity: number;
+  textOpacity: number;
+}
+
+const DEFAULT_TYPOGRAPHY_STYLE: TypographyStyleOptions = {
+  percentWeight: 600,
+  valueWeight: 500,
+  textWeight: 500,
+  valueGapScale: 1,
+  rowGapScale: 1,
+  labelOffsetScale: 1,
+  collisionGapMin: MIN_LABEL_GAP,
+  segmentDarken: 0.28,
+  valueOpacity: 1,
+  textOpacity: 1
+};
 
 const createVariant = (
   name: DonutLabelVariant["name"],
@@ -107,9 +140,14 @@ const resolveDatasetColor = (
   return typeof backgroundColors === "string" ? backgroundColors : fallback;
 };
 
-const resolveMutedSegmentColor = (segmentColor: string): string => {
+const resolveMutedSegmentColor = (segmentColor: string, darkenAmount: number): string => {
   try {
-    return color(segmentColor).darken(0.28).rgbString();
+    const segment = color(segmentColor);
+    if (!segment.valid) {
+      return segmentColor;
+    }
+
+    return segment.mix(color("#000000"), 1 - darkenAmount).rgbString();
   } catch {
     return segmentColor;
   }
@@ -179,23 +217,31 @@ const createTypography = (
   percentSize: number,
   valueSize: number,
   textSize: number,
-  lineWidth: number
+  lineWidth: number,
+  style: TypographyStyleOptions = DEFAULT_TYPOGRAPHY_STYLE
 ): DonutConnectorLabelTypography => {
-  const valueGap = Math.max(4, Math.round(percentSize * 0.18));
-  const rowGap = Math.max(4, Math.round(percentSize * 0.28));
+  const valueGap = Math.max(3, Math.round(percentSize * 0.18 * style.valueGapScale));
+  const rowGap = Math.max(3, Math.round(percentSize * 0.28 * style.rowGapScale));
 
   return {
-    solarFlarePercent: createVariant("solarFlarePercent", 600, percentSize),
-    wattFlowValue: createVariant("wattFlowValue", 500, valueSize),
-    orbitNoteText: createVariant("orbitNoteText", 500, textSize),
+    solarFlarePercent: createVariant("solarFlarePercent", style.percentWeight, percentSize),
+    wattFlowValue: createVariant("wattFlowValue", style.valueWeight, valueSize),
+    orbitNoteText: createVariant("orbitNoteText", style.textWeight, textSize),
     lineWidth,
+    valueOpacity: style.valueOpacity,
+    textOpacity: style.textOpacity,
+    segmentDarken: style.segmentDarken,
+    valueGapScale: style.valueGapScale,
+    rowGapScale: style.rowGapScale,
+    labelOffsetScale: style.labelOffsetScale,
+    collisionGapMin: style.collisionGapMin,
     valueGap,
     rowGap,
     topRowYShift: percentSize * 0.08,
-    labelOffset: percentSize + rowGap + textSize * 0.1 - 8,
+    labelOffset: (percentSize + rowGap + textSize * 0.1 - 8) * style.labelOffsetScale,
     labelHalfHeight: textSize * 0.6,
     collisionGap: Math.max(
-      MIN_LABEL_GAP,
+      style.collisionGapMin,
       Math.round(percentSize + textSize + rowGap + valueSize * 0.6)
     )
   };
@@ -216,11 +262,38 @@ export class DonutConnectorLabelRenderer {
     const textMin = readCssNumber(styles, "--pv-label-text-min", 10);
     const textMax = readCssNumber(styles, "--pv-label-text-max", 16);
     const lineWidth = readCssNumber(styles, "--pv-label-line-width", 1);
+    const percentWeight = readCssNumber(styles, "--pv-label-percent-weight", DEFAULT_TYPOGRAPHY_STYLE.percentWeight);
+    const valueWeight = readCssNumber(styles, "--pv-label-value-weight", DEFAULT_TYPOGRAPHY_STYLE.valueWeight);
+    const textWeight = readCssNumber(styles, "--pv-label-text-weight", DEFAULT_TYPOGRAPHY_STYLE.textWeight);
+    const style: TypographyStyleOptions = {
+      percentWeight,
+      valueWeight,
+      textWeight,
+      valueGapScale: readCssNumber(styles, "--pv-label-value-gap-scale", DEFAULT_TYPOGRAPHY_STYLE.valueGapScale),
+      rowGapScale: readCssNumber(styles, "--pv-label-row-gap-scale", DEFAULT_TYPOGRAPHY_STYLE.rowGapScale),
+      labelOffsetScale: readCssNumber(styles, "--pv-label-offset-scale", DEFAULT_TYPOGRAPHY_STYLE.labelOffsetScale),
+      collisionGapMin: readCssNumber(styles, "--pv-label-collision-gap-min", DEFAULT_TYPOGRAPHY_STYLE.collisionGapMin),
+      segmentDarken: clamp(
+        readCssNumber(styles, "--pv-label-segment-darken", DEFAULT_TYPOGRAPHY_STYLE.segmentDarken),
+        0,
+        0.8
+      ),
+      valueOpacity: clamp(
+        readCssNumber(styles, "--pv-label-value-opacity", DEFAULT_TYPOGRAPHY_STYLE.valueOpacity),
+        0.2,
+        1
+      ),
+      textOpacity: clamp(
+        readCssNumber(styles, "--pv-label-text-opacity", DEFAULT_TYPOGRAPHY_STYLE.textOpacity),
+        0.2,
+        1
+      )
+    };
     const percentSize = clamp(Math.round(radius * 0.14 * percentScale), percentMin, percentMax);
     const valueSize = clamp(Math.round(percentSize * 0.5 * valueScale), valueMin, valueMax);
     const textSize = clamp(Math.round(percentSize * 0.52 * textScale), textMin, textMax);
 
-    return createTypography(percentSize, valueSize, textSize, lineWidth);
+    return createTypography(percentSize, valueSize, textSize, lineWidth, style);
   }
 
   public static mergeTypographies(
@@ -234,7 +307,19 @@ export class DonutConnectorLabelRenderer {
     const valueSize = Math.min(...typographies.map((item) => item.wattFlowValue.size));
     const textSize = Math.min(...typographies.map((item) => item.orbitNoteText.size));
     const lineWidth = Math.max(...typographies.map((item) => item.lineWidth));
-    return createTypography(percentSize, valueSize, textSize, lineWidth);
+    const style: TypographyStyleOptions = {
+      percentWeight: typographies[0].solarFlarePercent.weight,
+      valueWeight: typographies[0].wattFlowValue.weight,
+      textWeight: typographies[0].orbitNoteText.weight,
+      valueGapScale: typographies[0].valueGapScale,
+      rowGapScale: typographies[0].rowGapScale,
+      labelOffsetScale: typographies[0].labelOffsetScale,
+      collisionGapMin: typographies[0].collisionGapMin,
+      segmentDarken: typographies[0].segmentDarken,
+      valueOpacity: typographies[0].valueOpacity,
+      textOpacity: typographies[0].textOpacity
+    };
+    return createTypography(percentSize, valueSize, textSize, lineWidth, style);
   }
 
   public static measureAutoPlan(
@@ -433,13 +518,13 @@ export class DonutConnectorLabelRenderer {
     labelColor: string
   ): void {
     const measurement = this.measureLabel(ctx, item, typography);
-    const mutedColor = resolveMutedSegmentColor(item.color);
+    const mutedColor = resolveMutedSegmentColor(item.color, typography.segmentDarken);
     const hoverColor = resolveHoverSegmentColor(item.color);
     const accentColor = item.active ? hoverColor : mutedColor;
     const outerX = item.side === "right" ? this.chart.width - EDGE_MARGIN : EDGE_MARGIN;
     const direction = item.side === "right" ? -1 : 1;
     const lineInnerX = outerX + direction * measurement.blockWidth;
-    const lineWidth = Math.max(1, typography.lineWidth);
+    const lineWidth = Math.max(0.5, typography.lineWidth);
     const topRowY = item.labelTopY - typography.topRowYShift;
     const topRowBaselineY = topRowY + typography.solarFlarePercent.size * 0.28;
     const percentMetrics = this.measureTextMetrics(ctx, typography.solarFlarePercent.font, item.percentageText);
@@ -490,15 +575,21 @@ export class DonutConnectorLabelRenderer {
       accentColor
     );
 
+    ctx.save();
+    ctx.globalAlpha = typography.valueOpacity;
     ctx.fillStyle = valueColor;
     ctx.font = typography.wattFlowValue.font;
     ctx.fillText(item.valueText, valueX, valueY);
+    ctx.restore();
 
+    ctx.save();
+    ctx.globalAlpha = typography.textOpacity;
     ctx.fillStyle = labelColor;
     ctx.font = typography.orbitNoteText.font;
     ctx.textAlign = item.side === "right" ? "right" : "left";
     ctx.textBaseline = "middle";
     ctx.fillText(item.labelText, outerX, labelY);
+    ctx.restore();
   }
 
   private measureTextMetrics(

@@ -37,6 +37,17 @@ const getSpacingSelect = (editor: EditorElement): HTMLSelectElement | null => {
   );
 };
 
+const getLabelPresetSelect = (editor: EditorElement): HTMLSelectElement | null => {
+  const selects = Array.from(editor.shadowRoot?.querySelectorAll("select") ?? []);
+  return (
+    selects.find((select) =>
+      ["balanced", "compact", "minimal", "highlight"].every((value) =>
+        Array.from(select.querySelectorAll("option")).some((option) => option.value === value)
+      )
+    ) ?? null
+  );
+};
+
 const waitForEditorRender = async (editor: EditorElement) => {
   await (editor as EditorElement & { updateComplete?: Promise<unknown> }).updateComplete;
 };
@@ -83,6 +94,25 @@ describe("pv-energy-donut-card-editor", () => {
 
     const ringSizeSelect = getRingSizeSelect(editor);
     expect(ringSizeSelect?.value).toBe("balanced");
+    editor.remove();
+  });
+
+  it("defaults unknown label preset values to balanced", async () => {
+    const editor = createEditor();
+    editor.setConfig?.({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "invalid",
+      charts: [
+        {
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+    document.body.append(editor);
+    await waitForEditorRender(editor);
+
+    const labelPresetSelect = getLabelPresetSelect(editor);
+    expect(labelPresetSelect?.value).toBe("balanced");
     editor.remove();
   });
 
@@ -146,6 +176,36 @@ describe("pv-energy-donut-card-editor", () => {
     editor.remove();
   });
 
+  it("emits config-changed when label preset is updated", async () => {
+    const editor = createEditor();
+    editor.hass = createHass("en-US");
+    editor.setConfig?.({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "balanced",
+      charts: [
+        {
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+    document.body.append(editor);
+    await waitForEditorRender(editor);
+
+    const emitted: Array<{ label_preset?: string }> = [];
+    editor.addEventListener("config-changed", ((event: CustomEvent) => {
+      emitted.push(event.detail.config);
+    }) as EventListener);
+
+    const labelPresetSelect = getLabelPresetSelect(editor);
+    expect(labelPresetSelect).toBeDefined();
+
+    labelPresetSelect.value = "highlight";
+    labelPresetSelect.dispatchEvent(new Event("change"));
+
+    expect(emitted.at(-1)?.label_preset).toBe("highlight");
+    editor.remove();
+  });
+
   it("renders translated spacing labels in German", async () => {
     const editor = createEditor();
     editor.hass = createHass("de-DE");
@@ -170,6 +230,10 @@ describe("pv-energy-donut-card-editor", () => {
     expect(text).toContain("Groß");
     expect(text).toContain("Mittel");
     expect(text).toContain("Kein Abstand");
+    expect(text).toContain("Labelstil");
+    expect(text).toContain("Kompakt");
+    expect(text).toContain("Minimal");
+    expect(text).toContain("Hervorgehoben");
     editor.remove();
   });
 });

@@ -163,6 +163,54 @@ const createLanguageScenarios = (language, locale) => {
       stateValues: createBaseStateValues()
     },
     {
+      fileName: "label-balanced.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        label_preset: "balanced"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "label-compact.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        label_preset: "compact"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "label-minimal.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        label_preset: "minimal"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "label-highlight.png",
+      locale,
+      cardWidth: 520,
+      viewport: { width: 920, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedSingleChartConfig,
+        label_preset: "highlight"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
       fileName: "ring-thin.png",
       locale,
       cardWidth: 520,

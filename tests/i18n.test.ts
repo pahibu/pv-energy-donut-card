@@ -20,6 +20,9 @@ describe("i18n", () => {
     expect(getTranslations("de-DE").segmentSpacingField).toBe("Segmentabstand");
     expect(getTranslations("en-US").mediumSpacing).toBe("Medium");
     expect(getTranslations("en-US").noSpacing).toBe("No spacing");
+    expect(getTranslations("en-US").labelPresetField).toBe("Label style");
+    expect(getTranslations("de-DE").labelPresetCompact).toBe("Kompakt");
+    expect(getTranslations("en-US").labelPresetHighlight).toBe("Highlight");
   });
 
   it("formats localized history errors", () => {

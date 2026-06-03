@@ -72,6 +72,40 @@ Choose between `thin`, `airy`, `balanced`, and `bold` depending on how light or 
 
 ![Bold donut ring](docs/images/en/screenshots/midnight-stage/ring-bold.png)
 
+### Label Style
+
+Choose between `balanced`, `compact`, `minimal`, and `highlight` to tune connector labels without free-form styling.
+
+`balanced`
+
+Default label appearance with clear percent emphasis.
+
+![Balanced connector labels](docs/images/en/screenshots/midnight-stage/label-balanced.png)
+
+`compact`
+
+Tighter labels for narrow or dense dashboards.
+
+![Compact connector labels](docs/images/en/screenshots/midnight-stage/label-compact.png)
+
+`minimal`
+
+Quieter value and text labels with a clean look.
+
+![Minimal connector labels](docs/images/en/screenshots/midnight-stage/label-minimal.png)
+
+`highlight`
+
+Stronger percent and value emphasis.
+
+![Highlighted connector labels](docs/images/en/screenshots/midnight-stage/label-highlight.png)
+
+Example:
+
+```yaml
+label_preset: compact
+```
+
 ## 🧭 Modes
 
 ### `simple`
@@ -140,6 +174,7 @@ title: PV Energy Overview
 mode: simple
 ring_size: balanced
 segment_spacing: relaxed
+label_preset: balanced
 value_precision: 1
 total_precision: 1
 charts:
@@ -186,6 +221,7 @@ charts:
 - `mode`: `simple` or `time_navigator`
 - `ring_size`: `thin`, `airy`, `balanced`, or `bold`
 - `segment_spacing`: `relaxed`, `compact`, or `none`
+- `label_preset`: `balanced`, `compact`, `minimal`, or `highlight`
 - `value_precision`: decimal places for segment values
 - `total_precision`: decimal places for the center total
 - `charts`: one or two chart definitions

@@ -13,6 +13,10 @@ import { getPeriodRange, isCurrentOpenPeriod, type PeriodUnit } from "./utils/pe
 import { getSegmentSourceEntity, type CardMode } from "./utils/segment-source";
 import type { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "./types";
 
+type RingSize = "thin" | "airy" | "balanced" | "bold";
+type SegmentSpacing = "relaxed" | "compact" | "none";
+type LabelPreset = "balanced" | "compact" | "minimal" | "highlight";
+
 interface SegmentConfig {
   entity: string;
   daily_entity?: string;
@@ -33,8 +37,9 @@ interface CardConfig {
   title?: string;
   locale?: string;
   mode?: "simple" | "time_navigator";
-  ring_size?: "thin" | "airy" | "balanced" | "bold";
-  segment_spacing?: "relaxed" | "compact" | "none";
+  ring_size?: RingSize;
+  segment_spacing?: SegmentSpacing;
+  label_preset?: LabelPreset;
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
@@ -59,8 +64,9 @@ interface NormalizedCardConfig {
   title?: string;
   locale?: string;
   mode: CardMode;
-  ringSize: "thin" | "airy" | "balanced" | "bold";
-  segmentSpacing: "relaxed" | "compact" | "none";
+  ringSize: RingSize;
+  segmentSpacing: SegmentSpacing;
+  labelPreset: LabelPreset;
   valuePrecision: number;
   totalPrecision: number;
   charts: NormalizedChartConfig[];
@@ -69,6 +75,12 @@ interface NormalizedCardConfig {
 const DEFAULT_SEGMENT_COLORS = ["#5dade2", "#f5b041", "#58d68d", "#af7ac5", "#ec7063"];
 const DEFAULT_UNIT = "kWh";
 const CARD_TAG_NAME = "pv-energy-donut-card";
+const isRingSize = (value: unknown): value is RingSize =>
+  value === "thin" || value === "airy" || value === "balanced" || value === "bold";
+const isSegmentSpacing = (value: unknown): value is SegmentSpacing =>
+  value === "relaxed" || value === "compact" || value === "none";
+const isLabelPreset = (value: unknown): value is LabelPreset =>
+  value === "balanced" || value === "compact" || value === "minimal" || value === "highlight";
 
 const normalizeCharts = (charts: ChartConfig[] | undefined): NormalizedChartConfig[] =>
   (charts ?? [])
@@ -99,11 +111,9 @@ const normalizeConfig = (config: CardConfig): NormalizedCardConfig => ({
   title: config.title?.trim(),
   locale: config.locale?.trim(),
   mode: config.mode === "time_navigator" ? "time_navigator" : "simple",
-  ringSize:
-    config.ring_size === "thin" || config.ring_size === "airy" || config.ring_size === "bold"
-      ? config.ring_size
-      : "balanced",
-  segmentSpacing: config.segment_spacing === "compact" || config.segment_spacing === "none" ? config.segment_spacing : "relaxed",
+  ringSize: isRingSize(config.ring_size) ? config.ring_size : "balanced",
+  segmentSpacing: isSegmentSpacing(config.segment_spacing) ? config.segment_spacing : "relaxed",
+  labelPreset: isLabelPreset(config.label_preset) ? config.label_preset : "balanced",
   valuePrecision: Number.isInteger(config.value_precision) ? Math.max(0, config.value_precision ?? 0) : 1,
   totalPrecision: Number.isInteger(config.total_precision) ? Math.max(0, config.total_precision ?? 0) : 1,
   charts: normalizeCharts(config.charts)
@@ -136,6 +146,85 @@ const SEGMENT_SPACING_TOKENS: Record<NormalizedCardConfig["segmentSpacing"], { s
   none: {
     separatorWidth: "0",
     separatorFactor: "0"
+  }
+};
+
+const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
+  balanced: {
+    "--pv-label-percent-scale": "1.2",
+    "--pv-label-percent-weight": "600",
+    "--pv-label-percent-max": "36",
+    "--pv-label-value-scale": "1.1",
+    "--pv-label-value-weight": "500",
+    "--pv-label-value-max": "18",
+    "--pv-label-text-scale": "1.1",
+    "--pv-label-text-weight": "500",
+    "--pv-label-text-max": "18",
+    "--pv-label-line-width": "1",
+    "--pv-label-value-gap-scale": "1",
+    "--pv-label-row-gap-scale": "1",
+    "--pv-label-offset-scale": "1",
+    "--pv-label-collision-gap-min": "50",
+    "--pv-label-segment-darken": "0.28",
+    "--pv-label-value-opacity": "1",
+    "--pv-label-text-opacity": "1"
+  },
+  compact: {
+    "--pv-label-percent-scale": "1.06",
+    "--pv-label-percent-weight": "600",
+    "--pv-label-percent-max": "30",
+    "--pv-label-value-scale": "0.95",
+    "--pv-label-value-weight": "500",
+    "--pv-label-value-max": "15",
+    "--pv-label-text-scale": "0.95",
+    "--pv-label-text-weight": "500",
+    "--pv-label-text-max": "15",
+    "--pv-label-line-width": "0.9",
+    "--pv-label-value-gap-scale": "0.8",
+    "--pv-label-row-gap-scale": "0.78",
+    "--pv-label-offset-scale": "0.84",
+    "--pv-label-collision-gap-min": "42",
+    "--pv-label-segment-darken": "0.32",
+    "--pv-label-value-opacity": "0.92",
+    "--pv-label-text-opacity": "0.9"
+  },
+  minimal: {
+    "--pv-label-percent-scale": "1",
+    "--pv-label-percent-weight": "550",
+    "--pv-label-percent-max": "28",
+    "--pv-label-value-scale": "0.88",
+    "--pv-label-value-weight": "450",
+    "--pv-label-value-max": "14",
+    "--pv-label-text-scale": "0.88",
+    "--pv-label-text-weight": "450",
+    "--pv-label-text-max": "14",
+    "--pv-label-line-width": "0.75",
+    "--pv-label-value-gap-scale": "0.75",
+    "--pv-label-row-gap-scale": "0.72",
+    "--pv-label-offset-scale": "0.8",
+    "--pv-label-collision-gap-min": "40",
+    "--pv-label-segment-darken": "0.38",
+    "--pv-label-value-opacity": "0.74",
+    "--pv-label-text-opacity": "0.7"
+  },
+  highlight: {
+    "--pv-label-percent-scale": "1.34",
+    "--pv-label-percent-weight": "700",
+    "--pv-label-percent-max": "40",
+    "--pv-label-value-scale": "1.18",
+    "--pv-label-value-weight": "600",
+    "--pv-label-value-max": "20",
+    "--pv-label-text-scale": "1.05",
+    "--pv-label-text-weight": "500",
+    "--pv-label-text-max": "17",
+    "--pv-label-line-width": "1.25",
+    "--pv-label-value-gap-scale": "1.08",
+    "--pv-label-row-gap-scale": "1.08",
+    "--pv-label-offset-scale": "1.04",
+    "--pv-label-collision-gap-min": "54",
+    "--pv-label-segment-darken": "0.18",
+    "--pv-label-value-opacity": "1",
+    "--pv-label-text-opacity": "0.95"
   }
 };
 
@@ -216,6 +305,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
         mode: "simple",
         ringSize: "balanced",
         segmentSpacing: "relaxed",
+        labelPreset: "balanced",
         valuePrecision: 1,
         totalPrecision: 1,
         charts: []
@@ -227,6 +317,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     this.config = normalized;
     this.applyRingSizeTokens(normalized.ringSize);
     this.applySegmentSpacingTokens(normalized.segmentSpacing);
+    this.applyLabelPresetTokens(normalized.labelPreset);
     this.periodCache.clear();
     this.periodValues = new Map();
     this.periodError = undefined;
@@ -248,6 +339,13 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     const tokens = SEGMENT_SPACING_TOKENS[segmentSpacing];
     this.style.setProperty("--pv-chart-separator-width", tokens.separatorWidth);
     this.style.setProperty("--pv-chart-min-segment-separator-factor", tokens.separatorFactor);
+  }
+
+  private applyLabelPresetTokens(labelPreset: LabelPreset): void {
+    const tokens = LABEL_PRESET_TOKENS[labelPreset];
+    for (const [property, value] of Object.entries(tokens)) {
+      this.style.setProperty(property, value);
+    }
   }
 
   public getCardSize(): number {
