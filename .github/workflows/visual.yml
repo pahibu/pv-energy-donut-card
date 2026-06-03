@@ -29,9 +29,16 @@ jobs:
 
       - name: Install Puppeteer Chrome
         run: |
+          set -o pipefail
           rm -rf "$PUPPETEER_CACHE_DIR/chrome"
-          CHROME_PATH="$(npx puppeteer browsers install chrome --format '{{path}}')"
-          test -x "$CHROME_PATH"
+          npx puppeteer browsers install chrome --format '{{path}}' | tee puppeteer-chrome-path.txt
+          CHROME_PATH="$(tail -n 1 puppeteer-chrome-path.txt)"
+          if [ ! -x "$CHROME_PATH" ]; then
+            echo "::error::Puppeteer Chrome executable was not found at $CHROME_PATH"
+            find "$PUPPETEER_CACHE_DIR" -maxdepth 5 -type f -name chrome -print
+            exit 1
+          fi
+          echo "PUPPETEER_EXECUTABLE_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
           echo "Installed Puppeteer Chrome at $CHROME_PATH"
 
       - name: Build bundle
@@ -42,7 +49,7 @@ jobs:
 
       - name: Upload visual diffs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: visual-diff-images
           path: |
