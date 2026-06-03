@@ -6,25 +6,43 @@ import {
   Tooltip,
   type ChartConfiguration
 } from "chart.js";
-import { centerLabelPlugin, setCenterLabelRuntimeMeta } from "./center-label-plugin";
+import {
+  centerLabelPlugin,
+  mergeCenterLabelTypographies,
+  resolveCenterLabelTypography,
+  setCenterLabelRuntimeMeta,
+  type CenterLabelTypography
+} from "./center-label-plugin";
 import { connectorLabelPlugin, setConnectorLabelRuntimeMeta } from "./connector-label-plugin";
+import {
+  DonutConnectorLabelRenderer,
+  type DonutConnectorLabelTypography,
+  type DonutLabelMeasurePlan
+} from "./donut-label-renderer";
 import { segmentSeparatorPlugin } from "./segment-separator-plugin";
 import type { DonutRenderModel } from "./types";
 
 Chart.register(ArcElement, DoughnutController, Legend, Tooltip, segmentSeparatorPlugin, centerLabelPlugin, connectorLabelPlugin);
+
+export interface DonutRenderSizing {
+  horizontalPadding?: number;
+  labelTypography?: DonutConnectorLabelTypography;
+  centerTypography?: CenterLabelTypography;
+}
 
 export class DonutRenderer {
   private chart?: Chart<"doughnut">;
   private readonly measureCanvas = document.createElement("canvas");
   private readonly resizeObserver?: ResizeObserver;
   private lastModel?: DonutRenderModel;
-  private lastSharedHorizontalPadding?: number;
+  private lastSizing?: DonutRenderSizing;
   private pendingResizeFrame?: number;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private locale: string,
-    private textColor: string
+    private textColor: string,
+    private readonly onLayoutInvalidated?: () => void
   ) {
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver(() => {
@@ -35,7 +53,12 @@ export class DonutRenderer {
 
         this.pendingResizeFrame = window.requestAnimationFrame(() => {
           this.pendingResizeFrame = undefined;
-          this.update(model, this.lastSharedHorizontalPadding);
+          if (this.onLayoutInvalidated) {
+            this.onLayoutInvalidated();
+            return;
+          }
+
+          this.update(model, this.lastSizing);
         });
       });
       this.resizeObserver.observe(this.canvas);
@@ -130,68 +153,92 @@ export class DonutRenderer {
     return total * (minimumVisibleArc / circumference);
   }
 
-  public measureHorizontalPadding(model: DonutRenderModel): number {
-    const width = this.canvas.clientWidth || this.canvas.parentElement?.clientWidth || 0;
-    const styles = getComputedStyle(this.canvas);
-    const percentScale = this.readCssNumber(styles, "--pv-label-percent-scale", 1);
-    const percentMin = this.readCssNumber(styles, "--pv-label-percent-min", 12);
-    const percentMax = this.readCssNumber(styles, "--pv-label-percent-max", 20);
-    const valueScale = this.readCssNumber(styles, "--pv-label-value-scale", 1);
-    const valueMin = this.readCssNumber(styles, "--pv-label-value-min", 9);
-    const valueMax = this.readCssNumber(styles, "--pv-label-value-max", 14);
-    const textScale = this.readCssNumber(styles, "--pv-label-text-scale", 1);
-    const textMin = this.readCssNumber(styles, "--pv-label-text-min", 10);
-    const textMax = this.readCssNumber(styles, "--pv-label-text-max", 16);
-    const radiusGuess = Math.max(48, Math.min(width * 0.18, 96));
-    const percentFontSize = Math.max(percentMin, Math.min(percentMax, Math.round(radiusGuess * 0.14 * percentScale)));
-    const valueFontSize = Math.max(valueMin, Math.min(valueMax, Math.round(percentFontSize * 0.5 * valueScale)));
-    const labelFontSize = Math.max(textMin, Math.min(textMax, Math.round(percentFontSize * 0.52 * textScale)));
-    const valueGap = Math.max(10, Math.round(percentFontSize * 0.42));
-    const ctx = this.measureCanvas.getContext("2d");
-
-    if (!ctx) {
-      return width <= 360 ? 64 : width <= 460 ? 92 : 132;
-    }
-
-    const percentFont = `600 ${percentFontSize}px ui-sans-serif, system-ui, sans-serif`;
-    const valueFont = `500 ${valueFontSize}px ui-sans-serif, system-ui, sans-serif`;
-    const labelFont = `500 ${labelFontSize}px ui-sans-serif, system-ui, sans-serif`;
-    const maxPercentWidth = Math.max(
-      ...model.data.map((segment) => {
-        ctx.font = percentFont;
-        return ctx.measureText(`${Math.round(segment.percentage)}%`).width;
-      }),
-      0
-    );
-    const maxValueWidth = Math.max(
-      ...model.data.map((segment) => {
-        ctx.font = valueFont;
-        return ctx.measureText(segment.formattedValue).width;
-      }),
-      0
-    );
-    const maxLabelWidth = Math.max(
-      ...model.data.map((segment) => {
-        ctx.font = labelFont;
-        return ctx.measureText(segment.label).width;
-      }),
-      0
-    );
-    const topRowWidth = maxPercentWidth + valueGap + maxValueWidth;
-    const needed = Math.max(topRowWidth, maxLabelWidth) + 24;
-    const maxPadding = Math.max(64, Math.floor(width * 0.34));
-    const minPadding = width <= 360 ? 56 : width <= 460 ? 72 : 96;
-    return Math.max(minPadding, Math.min(maxPadding, Math.ceil(needed)));
+  private resolveCanvasWidth(): number {
+    return this.canvas.clientWidth || this.canvas.parentElement?.clientWidth || this.canvas.width || 0;
   }
 
-  update(model: DonutRenderModel, sharedHorizontalPadding?: number): void {
+  private resolveCanvasHeight(): number {
+    return this.canvas.clientHeight || this.canvas.parentElement?.clientHeight || this.canvas.height || 280;
+  }
+
+  public measureLabelPlan(model: DonutRenderModel): DonutLabelMeasurePlan {
+    const width = this.resolveCanvasWidth();
+    const height = this.resolveCanvasHeight();
+    const styles = getComputedStyle(this.canvas);
+    const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
+    const ctx = this.measureCanvas.getContext("2d");
+
+    return DonutConnectorLabelRenderer.measureAutoPlan(
+      ctx,
+      model,
+      this.locale,
+      styles,
+      width,
+      height,
+      verticalPadding
+    );
+  }
+
+  public measureHorizontalPadding(
+    model: DonutRenderModel,
+    typography?: DonutConnectorLabelTypography
+  ): number {
+    const width = this.resolveCanvasWidth();
+    const activeTypography = typography ?? this.measureLabelPlan(model).typography;
+    return DonutConnectorLabelRenderer.measureHorizontalPadding(
+      this.measureCanvas.getContext("2d"),
+      model,
+      this.locale,
+      width,
+      activeTypography
+    );
+  }
+
+  public measureCenterTypography(
+    model: DonutRenderModel,
+    horizontalPadding: number
+  ): CenterLabelTypography | undefined {
+    const ctx = this.measureCanvas.getContext("2d");
+    if (!ctx) {
+      return undefined;
+    }
+
+    const styles = getComputedStyle(this.canvas);
+    const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
+    const reference = Math.min(
+      Math.max(1, this.resolveCanvasWidth() - horizontalPadding * 2),
+      Math.max(1, this.resolveCanvasHeight() - verticalPadding * 2)
+    );
+
+    return resolveCenterLabelTypography({
+      ctx,
+      styles,
+      title: model.title,
+      totalFormatted: model.totalFormatted,
+      reference
+    });
+  }
+
+  public static mergeLabelTypographies(
+    typographies: DonutConnectorLabelTypography[]
+  ): DonutConnectorLabelTypography | undefined {
+    return DonutConnectorLabelRenderer.mergeTypographies(typographies);
+  }
+
+  public static mergeCenterTypographies(
+    typographies: CenterLabelTypography[]
+  ): CenterLabelTypography | undefined {
+    return mergeCenterLabelTypographies(typographies);
+  }
+
+  update(model: DonutRenderModel, sizing: DonutRenderSizing = {}): void {
     this.lastModel = model;
-    this.lastSharedHorizontalPadding = sharedHorizontalPadding;
+    this.lastSizing = sizing;
 
     const values = model.data.map((segment) => segment.value);
     const colors = model.data.map((segment) => segment.color);
     const labels = model.data.map((segment) => segment.label);
-    const horizontalPadding = sharedHorizontalPadding ?? this.measureHorizontalPadding(model);
+    const horizontalPadding = sizing.horizontalPadding ?? this.measureHorizontalPadding(model, sizing.labelTypography);
     const styles = getComputedStyle(this.canvas);
     const verticalPadding = this.readCssNumber(styles, "--pv-chart-padding-y", 14);
     const minimumSegmentWidth = this.readCssNumber(styles, "--pv-chart-min-segment-width", 0.5);
@@ -258,12 +305,14 @@ export class DonutRenderer {
     this.chart.data.datasets[0].hoverBorderWidth = 0;
     setCenterLabelRuntimeMeta(this.chart, {
       title: model.title,
-      totalFormatted: model.totalFormatted
+      totalFormatted: model.totalFormatted,
+      typography: sizing.centerTypography
     });
     setConnectorLabelRuntimeMeta(this.chart, {
       locale: this.locale,
       data: model.data,
-      textColor: this.textColor
+      textColor: this.textColor,
+      typography: sizing.labelTypography
     });
     if (this.chart.options.layout?.padding && typeof this.chart.options.layout.padding !== "function") {
       this.chart.options.layout.padding = {
@@ -292,6 +341,6 @@ export class DonutRenderer {
     this.chart?.destroy();
     this.chart = undefined;
     this.lastModel = undefined;
-    this.lastSharedHorizontalPadding = undefined;
+    this.lastSizing = undefined;
   }
 }
