@@ -332,11 +332,22 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
         continue;
       }
 
-      if (!this.renderers.has(chart.key)) {
-        this.renderers.set(chart.key, new DonutRenderer(canvas, locale, textColor));
+      const renderer = this.renderers.get(chart.key);
+      if (renderer) {
+        renderer.resize(locale, textColor);
+      } else {
+        this.renderers.set(chart.key, new DonutRenderer(canvas, locale, textColor, () => this.requestUpdate()));
       }
     }
 
+    const labelPlans = this.config.charts
+      .map((chart) => {
+        const renderer = this.renderers.get(chart.key);
+        const model = renderModels.get(chart.key);
+        return renderer && model ? renderer.measureLabelPlan(model) : undefined;
+      })
+      .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan));
+    const sharedLabelTypography = DonutRenderer.mergeLabelTypographies(labelPlans.map((plan) => plan.typography));
     const sharedHorizontalPadding = this.config.charts.reduce((maxPadding, chart) => {
       const renderer = this.renderers.get(chart.key);
       const model = renderModels.get(chart.key);
@@ -344,8 +355,16 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
         return maxPadding;
       }
 
-      return Math.max(maxPadding, renderer.measureHorizontalPadding(model));
+      return Math.max(maxPadding, renderer.measureHorizontalPadding(model, sharedLabelTypography));
     }, 0);
+    const centerTypographies = this.config.charts
+      .map((chart) => {
+        const renderer = this.renderers.get(chart.key);
+        const model = renderModels.get(chart.key);
+        return renderer && model ? renderer.measureCenterTypography(model, sharedHorizontalPadding) : undefined;
+      })
+      .filter((typography): typography is NonNullable<typeof typography> => Boolean(typography));
+    const sharedCenterTypography = DonutRenderer.mergeCenterTypographies(centerTypographies);
 
     for (const chart of this.config.charts) {
       const canvas = canvases.find((item) => item.dataset.chartKey === chart.key);
@@ -355,7 +374,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
 
       let renderer = this.renderers.get(chart.key);
       if (!renderer) {
-        renderer = new DonutRenderer(canvas, locale, textColor);
+        renderer = new DonutRenderer(canvas, locale, textColor, () => this.requestUpdate());
         this.renderers.set(chart.key, renderer);
       } else {
         renderer.resize(locale, textColor);
@@ -366,7 +385,11 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
         continue;
       }
 
-      renderer.update(model, sharedHorizontalPadding);
+      renderer.update(model, {
+        horizontalPadding: sharedHorizontalPadding,
+        labelTypography: sharedLabelTypography,
+        centerTypography: sharedCenterTypography
+      });
     }
 
     for (const [key, renderer] of this.renderers.entries()) {

@@ -178,8 +178,13 @@ export const cardStyles = css`
 
   .chart-grid {
     display: grid;
+    align-items: stretch;
     gap: 16px;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--pv-chart-min-width)), 1fr));
+  }
+
+  .chart-grid[data-chart-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .chart-panel {
@@ -250,8 +255,12 @@ export const cardStyles = css`
       grid-template-columns: 1fr;
     }
 
+    .chart-grid[data-chart-count="2"] {
+      grid-template-columns: 1fr;
+    }
+
     .chart-panel {
-      min-height: 280;
+      min-height: 280px;
     }
 
     .chart-canvas-wrap {
