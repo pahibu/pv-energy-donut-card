@@ -21,6 +21,7 @@ export const createBaseConfig = () => ({
   title: "PV Energy Overview",
   mode: "simple",
   ring_size: "balanced",
+  label_preset: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -76,6 +77,7 @@ export const createSingleChartConfig = () => ({
   title: "PV Energy Overview",
   mode: "simple",
   ring_size: "balanced",
+  label_preset: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -174,6 +176,70 @@ export const visualScenarios = {
     config: {
       ...createBaseConfig(),
       segment_spacing: "none"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-balanced": {
+    snapshotName: "label-balanced",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "balanced"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-compact": {
+    snapshotName: "label-compact",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "compact"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-minimal": {
+    snapshotName: "label-minimal",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "minimal"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-highlight": {
+    snapshotName: "label-highlight",
+    viewport: {
+      width: 920,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 520,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "highlight"
     },
     stateValues: createBaseStateValues()
   },

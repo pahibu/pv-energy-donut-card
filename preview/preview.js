@@ -16,6 +16,7 @@ const previewSettings = {
   mode: "simple",
   ringSize: "balanced",
   segmentSpacing: "relaxed",
+  labelPreset: "balanced",
   language: "de",
   theme: "dark"
 };
@@ -27,6 +28,8 @@ const translations = {
     cardMode: "Kartenmodus",
     cardModeLabel: "Modus",
     cardModeSubtitle: "Wechsle zwischen der einfachen Ansicht und dem neuen Zeitnavigator",
+    chartLabelPreset: "Labelstil",
+    chartLabelPresetSubtitle: "Wähle zwischen ausgewogenen, kompakten, minimalen oder hervorgehobenen Connector-Labels",
     chartRingSize: "Ringgröße",
     chartRingSizeSubtitle: "Wähle zwischen einem feinen, luftigen, ausgewogenen oder kräftigeren Donut-Ring",
     chartSpacing: "Segmentabstand",
@@ -36,6 +39,10 @@ const translations = {
     consumption: "Verbrauch",
     feedIn: "Einspeisung",
     gridImport: "Netzbezug",
+    labelPresetBalanced: "Ausgewogen",
+    labelPresetCompact: "Kompakt",
+    labelPresetHighlight: "Hervorgehoben",
+    labelPresetMinimal: "Minimal",
     languageLabel: "Sprache",
     themeLabel: "Thema",
     themeDark: "Dunkel",
@@ -63,6 +70,8 @@ const translations = {
     cardMode: "Card mode",
     cardModeLabel: "Mode",
     cardModeSubtitle: "Switch between the simple view and the new period navigator",
+    chartLabelPreset: "Label style",
+    chartLabelPresetSubtitle: "Choose between balanced, compact, minimal, or highlighted connector labels",
     chartRingSize: "Ring size",
     chartRingSizeSubtitle: "Choose between a thinner, airy, balanced, or bolder donut ring",
     chartSpacing: "Segment spacing",
@@ -72,6 +81,10 @@ const translations = {
     consumption: "Consumption",
     feedIn: "Feed-in",
     gridImport: "Grid import",
+    labelPresetBalanced: "Balanced",
+    labelPresetCompact: "Compact",
+    labelPresetHighlight: "Highlight",
+    labelPresetMinimal: "Minimal",
     languageLabel: "Language",
     themeLabel: "Theme",
     themeDark: "Dark",
@@ -216,6 +229,7 @@ const config = {
   mode: "simple",
   ring_size: "balanced",
   segment_spacing: "relaxed",
+  label_preset: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -360,6 +374,7 @@ const renderCard = () => {
   config.mode = previewSettings.mode;
   config.ring_size = previewSettings.ringSize;
   config.segment_spacing = previewSettings.segmentSpacing;
+  config.label_preset = previewSettings.labelPreset;
   nextCard.setConfig(config);
   nextCard.hass = createPreviewHass();
   const stage = document.createElement("div");
@@ -673,6 +688,61 @@ const createRingSizeControl = () => {
   return section;
 };
 
+const createLabelPresetControl = () => {
+  const text = getText();
+  const section = document.createElement("section");
+  section.className = "control-panel";
+
+  const heading = document.createElement("div");
+  heading.className = "control-panel-heading";
+  heading.textContent = text.chartLabelPreset;
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "control-panel-subtitle";
+  subtitle.textContent = text.chartLabelPresetSubtitle;
+
+  const row = document.createElement("label");
+  row.className = "control-row";
+
+  const title = document.createElement("span");
+  title.className = "control-label";
+  title.textContent = text.chartLabelPreset;
+
+  const select = document.createElement("select");
+  select.className = "control-slider";
+  select.style.setProperty("--accent", "#7fc8ff");
+
+  const balancedOption = document.createElement("option");
+  balancedOption.value = "balanced";
+  balancedOption.textContent = text.labelPresetBalanced;
+
+  const compactOption = document.createElement("option");
+  compactOption.value = "compact";
+  compactOption.textContent = text.labelPresetCompact;
+
+  const minimalOption = document.createElement("option");
+  minimalOption.value = "minimal";
+  minimalOption.textContent = text.labelPresetMinimal;
+
+  const highlightOption = document.createElement("option");
+  highlightOption.value = "highlight";
+  highlightOption.textContent = text.labelPresetHighlight;
+
+  select.append(balancedOption, compactOption, minimalOption, highlightOption);
+  select.value = previewSettings.labelPreset;
+  select.addEventListener("change", () => {
+    previewSettings.labelPreset =
+      select.value === "compact" || select.value === "minimal" || select.value === "highlight"
+        ? select.value
+        : "balanced";
+    updateCard();
+  });
+
+  row.append(title, select);
+  section.append(heading, subtitle, row);
+  return section;
+};
+
 const createLanguageSwitcher = () => {
   const text = getText();
   const wrapper = document.createElement("div");
@@ -747,6 +817,7 @@ const renderControls = () => {
   controlsRoot?.append(createModeControl());
   controlsRoot?.append(createRingSizeControl());
   controlsRoot?.append(createSpacingControl());
+  controlsRoot?.append(createLabelPresetControl());
 
   for (const group of getSliderGroups()) {
     const section = document.createElement("section");

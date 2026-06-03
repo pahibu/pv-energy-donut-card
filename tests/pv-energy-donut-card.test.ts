@@ -73,6 +73,39 @@ describe("pv-energy-donut-card config tokens", () => {
     expect(card.style.getPropertyValue("--pv-chart-cutout")).toBe("76");
   });
 
+  it("defaults to balanced label preset for missing or unsupported values", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-percent-scale")).toBe("1.2");
+    expect(card.style.getPropertyValue("--pv-label-percent-weight")).toBe("600");
+    expect(card.style.getPropertyValue("--pv-label-value-opacity")).toBe("1");
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "something-else" as "balanced",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-percent-scale")).toBe("1.2");
+    expect(card.style.getPropertyValue("--pv-label-percent-weight")).toBe("600");
+    expect(card.style.getPropertyValue("--pv-label-value-opacity")).toBe("1");
+  });
+
   it("applies airy ring size tokens", () => {
     const card = createCard();
 
@@ -158,5 +191,62 @@ describe("pv-energy-donut-card config tokens", () => {
 
     expect(card.style.getPropertyValue("--pv-chart-separator-width")).toBe("0");
     expect(card.style.getPropertyValue("--pv-chart-min-segment-separator-factor")).toBe("0");
+  });
+
+  it("applies compact label preset tokens", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "compact",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-percent-scale")).toBe("1.06");
+    expect(card.style.getPropertyValue("--pv-label-row-gap-scale")).toBe("0.78");
+    expect(card.style.getPropertyValue("--pv-label-collision-gap-min")).toBe("42");
+  });
+
+  it("applies minimal label preset tokens", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "minimal",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-percent-weight")).toBe("550");
+    expect(card.style.getPropertyValue("--pv-label-line-width")).toBe("0.75");
+    expect(card.style.getPropertyValue("--pv-label-text-opacity")).toBe("0.7");
+  });
+
+  it("applies highlight label preset tokens", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_preset: "highlight",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-percent-scale")).toBe("1.34");
+    expect(card.style.getPropertyValue("--pv-label-percent-weight")).toBe("700");
+    expect(card.style.getPropertyValue("--pv-label-line-width")).toBe("1.25");
   });
 });

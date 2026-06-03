@@ -25,6 +25,11 @@ export interface UiTranslations {
   gridImport: string;
   keyField: string;
   labelField: string;
+  labelPresetBalanced: string;
+  labelPresetCompact: string;
+  labelPresetField: string;
+  labelPresetHighlight: string;
+  labelPresetMinimal: string;
   largeSpacing: string;
   mediumSpacing: string;
   modeField: string;
@@ -74,6 +79,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
     gridImport: "Netzbezug",
     keyField: "Schlüssel",
     labelField: "Beschriftung",
+    labelPresetBalanced: "Ausgewogen",
+    labelPresetCompact: "Kompakt",
+    labelPresetField: "Labelstil",
+    labelPresetHighlight: "Hervorgehoben",
+    labelPresetMinimal: "Minimal",
     largeSpacing: "Groß",
     mediumSpacing: "Mittel",
     modeField: "Modus",
@@ -121,6 +131,11 @@ const translations: Record<SupportedLanguage, UiTranslations> = {
     gridImport: "Grid import",
     keyField: "Key",
     labelField: "Label",
+    labelPresetBalanced: "Balanced",
+    labelPresetCompact: "Compact",
+    labelPresetField: "Label style",
+    labelPresetHighlight: "Highlight",
+    labelPresetMinimal: "Minimal",
     largeSpacing: "Large",
     mediumSpacing: "Medium",
     modeField: "Mode",

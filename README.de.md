@@ -74,6 +74,40 @@ Wähle zwischen `thin`, `airy`, `balanced` und `bold`, je nachdem ob der Donut-R
 
 ![Kräftiger Donut-Ring](docs/images/de/screenshots/midnight-stage/ring-bold.png)
 
+### Labelstil
+
+Wähle zwischen `balanced`, `compact`, `minimal` und `highlight`, um die Connector-Labels ohne freie Styling-Optionen anzupassen.
+
+`balanced`
+
+Standarddarstellung mit klarer Prozent-Betonung.
+
+![Ausgewogene Connector-Labels](docs/images/de/screenshots/midnight-stage/label-balanced.png)
+
+`compact`
+
+Kompaktere Labels für schmale oder dichte Dashboards.
+
+![Kompakte Connector-Labels](docs/images/de/screenshots/midnight-stage/label-compact.png)
+
+`minimal`
+
+Ruhigere Werte und Texte für einen reduzierten Look.
+
+![Minimale Connector-Labels](docs/images/de/screenshots/midnight-stage/label-minimal.png)
+
+`highlight`
+
+Stärkere Betonung von Prozent und Wert.
+
+![Hervorgehobene Connector-Labels](docs/images/de/screenshots/midnight-stage/label-highlight.png)
+
+Beispiel:
+
+```yaml
+label_preset: compact
+```
+
 ## Modi
 
 ### `simple`
@@ -142,6 +176,7 @@ title: PV Energy Overview
 mode: simple
 ring_size: balanced
 segment_spacing: relaxed
+label_preset: balanced
 value_precision: 1
 total_precision: 1
 charts:
@@ -188,6 +223,7 @@ charts:
 - `mode`: `simple` oder `time_navigator`
 - `ring_size`: `thin`, `airy`, `balanced` oder `bold`
 - `segment_spacing`: `relaxed`, `compact` oder `none`
+- `label_preset`: `balanced`, `compact`, `minimal` oder `highlight`
 - `value_precision`: Nachkommastellen für Segmentwerte
 - `total_precision`: Nachkommastellen für den zentralen Summenwert
 - `charts`: eine oder zwei Diagrammdefinitionen
