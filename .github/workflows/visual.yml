@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Puppeteer Chrome
+        run: npx puppeteer browsers install chrome
+
       - name: Build bundle
         run: npm run build
 
