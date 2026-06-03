@@ -11,6 +11,8 @@ jobs:
   visual-regression:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      PUPPETEER_CACHE_DIR: ${{ github.workspace }}/.cache/puppeteer
 
     steps:
       - name: Check out repository
@@ -27,8 +29,10 @@ jobs:
 
       - name: Install Puppeteer Chrome
         run: |
-          rm -rf ~/.cache/puppeteer/chrome
-          npx puppeteer browsers install chrome
+          rm -rf "$PUPPETEER_CACHE_DIR/chrome"
+          CHROME_PATH="$(npx puppeteer browsers install chrome --format '{{path}}')"
+          test -x "$CHROME_PATH"
+          echo "Installed Puppeteer Chrome at $CHROME_PATH"
 
       - name: Build bundle
         run: npm run build
