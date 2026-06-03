@@ -25,6 +25,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Resolve Puppeteer Chrome version
+        id: puppeteer-chrome
+        run: |
+          CHROME_VERSION="$(node -e "console.log(require('puppeteer-core/internal/revisions.js').PUPPETEER_REVISIONS.chrome)")"
+          echo "version=$CHROME_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Using Puppeteer Chrome $CHROME_VERSION"
+
+      - name: Set up Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ steps.puppeteer-chrome.outputs.version }}
+
+      - name: Configure Puppeteer Chrome
+        run: |
+          CHROME_PATH="${{ steps.setup-chrome.outputs.chrome-path }}"
+          if [ ! -x "$CHROME_PATH" ]; then
+            echo "::error::Puppeteer Chrome executable was not found at $CHROME_PATH"
+            exit 1
+          fi
+          "$CHROME_PATH" --version
+          echo "PUPPETEER_EXECUTABLE_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          echo "Configured Puppeteer Chrome at $CHROME_PATH"
+
       - name: Build bundle
         run: npm run build
 
@@ -33,7 +57,7 @@ jobs:
 
       - name: Upload visual diffs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: visual-diff-images
           path: |
