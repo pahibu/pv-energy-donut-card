@@ -29,10 +29,9 @@ jobs:
 
       - name: Install Puppeteer Chrome
         run: |
-          set -o pipefail
           rm -rf "$PUPPETEER_CACHE_DIR/chrome"
-          npx puppeteer browsers install chrome --format '{{path}}' | tee puppeteer-chrome-path.txt
-          CHROME_PATH="$(tail -n 1 puppeteer-chrome-path.txt)"
+          npx puppeteer browsers install chrome
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(puppeteer.executablePath());")"
           if [ ! -x "$CHROME_PATH" ]; then
             echo "::error::Puppeteer Chrome executable was not found at $CHROME_PATH"
             find "$PUPPETEER_CACHE_DIR" -maxdepth 5 -type f -name chrome -print
