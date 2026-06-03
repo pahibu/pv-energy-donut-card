@@ -142,7 +142,12 @@ const resolveDatasetColor = (
 
 const resolveMutedSegmentColor = (segmentColor: string, darkenAmount: number): string => {
   try {
-    return color(segmentColor).darken(darkenAmount).rgbString();
+    const segment = color(segmentColor);
+    if (!segment.valid) {
+      return segmentColor;
+    }
+
+    return segment.mix(color("#000000"), 1 - darkenAmount).rgbString();
   } catch {
     return segmentColor;
   }
