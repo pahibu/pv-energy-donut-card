@@ -25,7 +25,6 @@ export interface DonutConnectorLabelTypography {
   lineWidth: number;
   valueOpacity: number;
   textOpacity: number;
-  segmentDarken: number;
   valueGapScale: number;
   rowGapScale: number;
   labelOffsetScale: number;
@@ -78,7 +77,6 @@ interface TypographyStyleOptions {
   rowGapScale: number;
   labelOffsetScale: number;
   collisionGapMin: number;
-  segmentDarken: number;
   valueOpacity: number;
   textOpacity: number;
 }
@@ -91,7 +89,6 @@ const DEFAULT_TYPOGRAPHY_STYLE: TypographyStyleOptions = {
   rowGapScale: 1,
   labelOffsetScale: 1,
   collisionGapMin: MIN_LABEL_GAP,
-  segmentDarken: 0.28,
   valueOpacity: 1,
   textOpacity: 1
 };
@@ -140,14 +137,10 @@ const resolveDatasetColor = (
   return typeof backgroundColors === "string" ? backgroundColors : fallback;
 };
 
-const resolveMutedSegmentColor = (segmentColor: string, darkenAmount: number): string => {
+const resolveNormalSegmentColor = (segmentColor: string): string => {
   try {
     const segment = color(segmentColor);
-    if (!segment.valid) {
-      return segmentColor;
-    }
-
-    return segment.mix(color("#000000"), 1 - darkenAmount).rgbString();
+    return segment.valid ? segment.rgbString() : segmentColor;
   } catch {
     return segmentColor;
   }
@@ -230,7 +223,6 @@ const createTypography = (
     lineWidth,
     valueOpacity: style.valueOpacity,
     textOpacity: style.textOpacity,
-    segmentDarken: style.segmentDarken,
     valueGapScale: style.valueGapScale,
     rowGapScale: style.rowGapScale,
     labelOffsetScale: style.labelOffsetScale,
@@ -273,11 +265,6 @@ export class DonutConnectorLabelRenderer {
       rowGapScale: readCssNumber(styles, "--pv-label-row-gap-scale", DEFAULT_TYPOGRAPHY_STYLE.rowGapScale),
       labelOffsetScale: readCssNumber(styles, "--pv-label-offset-scale", DEFAULT_TYPOGRAPHY_STYLE.labelOffsetScale),
       collisionGapMin: readCssNumber(styles, "--pv-label-collision-gap-min", DEFAULT_TYPOGRAPHY_STYLE.collisionGapMin),
-      segmentDarken: clamp(
-        readCssNumber(styles, "--pv-label-segment-darken", DEFAULT_TYPOGRAPHY_STYLE.segmentDarken),
-        0,
-        0.8
-      ),
       valueOpacity: clamp(
         readCssNumber(styles, "--pv-label-value-opacity", DEFAULT_TYPOGRAPHY_STYLE.valueOpacity),
         0.2,
@@ -315,7 +302,6 @@ export class DonutConnectorLabelRenderer {
       rowGapScale: typographies[0].rowGapScale,
       labelOffsetScale: typographies[0].labelOffsetScale,
       collisionGapMin: typographies[0].collisionGapMin,
-      segmentDarken: typographies[0].segmentDarken,
       valueOpacity: typographies[0].valueOpacity,
       textOpacity: typographies[0].textOpacity
     };
@@ -518,9 +504,9 @@ export class DonutConnectorLabelRenderer {
     labelColor: string
   ): void {
     const measurement = this.measureLabel(ctx, item, typography);
-    const mutedColor = resolveMutedSegmentColor(item.color, typography.segmentDarken);
+    const normalColor = resolveNormalSegmentColor(item.color);
     const hoverColor = resolveHoverSegmentColor(item.color);
-    const accentColor = item.active ? hoverColor : mutedColor;
+    const accentColor = item.active ? hoverColor : normalColor;
     const outerX = item.side === "right" ? this.chart.width - EDGE_MARGIN : EDGE_MARGIN;
     const direction = item.side === "right" ? -1 : 1;
     const lineInnerX = outerX + direction * measurement.blockWidth;

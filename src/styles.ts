@@ -40,7 +40,6 @@ export const cardStyles = css`
     --pv-label-row-gap-scale: 1;
     --pv-label-offset-scale: 1;
     --pv-label-collision-gap-min: 50;
-    --pv-label-segment-darken: 0.28;
     --pv-label-value-opacity: 1;
     --pv-label-text-opacity: 1;
     --pv-chart-padding-y: 20;
