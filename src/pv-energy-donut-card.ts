@@ -165,7 +165,6 @@ const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
     "--pv-label-row-gap-scale": "1",
     "--pv-label-offset-scale": "1",
     "--pv-label-collision-gap-min": "50",
-    "--pv-label-segment-darken": "0.28",
     "--pv-label-value-opacity": "1",
     "--pv-label-text-opacity": "1"
   },
@@ -184,7 +183,6 @@ const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
     "--pv-label-row-gap-scale": "0.78",
     "--pv-label-offset-scale": "0.84",
     "--pv-label-collision-gap-min": "42",
-    "--pv-label-segment-darken": "0.32",
     "--pv-label-value-opacity": "0.92",
     "--pv-label-text-opacity": "0.9"
   },
@@ -203,7 +201,6 @@ const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
     "--pv-label-row-gap-scale": "0.72",
     "--pv-label-offset-scale": "0.8",
     "--pv-label-collision-gap-min": "40",
-    "--pv-label-segment-darken": "0.38",
     "--pv-label-value-opacity": "0.74",
     "--pv-label-text-opacity": "0.7"
   },
@@ -222,7 +219,6 @@ const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
     "--pv-label-row-gap-scale": "1.08",
     "--pv-label-offset-scale": "1.04",
     "--pv-label-collision-gap-min": "54",
-    "--pv-label-segment-darken": "0.18",
     "--pv-label-value-opacity": "1",
     "--pv-label-text-opacity": "0.95"
   }

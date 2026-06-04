@@ -133,7 +133,12 @@ const compareSnapshot = async (scenarioName, actualPath) => {
     await fs.access(goldenPath);
   } catch {
     if (!updateSnapshots) {
-      throw new Error(`Missing golden snapshot for "${scenarioName}". Run npm run test:visual:update to create it.`);
+      return {
+        scenarioName,
+        status: "failed",
+        diffPixels: 0,
+        message: `Missing golden snapshot. Run npm run test:visual:update to create it.`
+      };
     }
 
     await fs.copyFile(actualPath, goldenPath);
@@ -157,9 +162,12 @@ const compareSnapshot = async (scenarioName, actualPath) => {
   const expected = await readPng(goldenPath);
 
   if (actual.width !== expected.width || actual.height !== expected.height) {
-    throw new Error(
-      `Snapshot size mismatch for "${scenarioName}": got ${actual.width}x${actual.height}, expected ${expected.width}x${expected.height}.`
-    );
+    return {
+      scenarioName,
+      status: "failed",
+      diffPixels: 0,
+      message: `Snapshot size mismatch: got ${actual.width}x${actual.height}, expected ${expected.width}x${expected.height}.`
+    };
   }
 
   const diff = new PNG({ width: actual.width, height: actual.height });
@@ -202,27 +210,38 @@ const run = async () => {
     for (const scenarioName of visualScenarioNames) {
       const scenario = visualScenarios[scenarioName];
       const page = await browser.newPage();
-      await page.setViewport(scenario.viewport);
-      await page.emulateTimezone("UTC");
-      await installFixedDate(page);
-      const scenarioPage = scenario.page ?? "harness.html";
-      await page.goto(`${baseUrl}/tests/visual/${scenarioPage}?scenario=${encodeURIComponent(scenarioName)}`, {
-        waitUntil: "networkidle0"
-      });
-      await page.waitForFunction(() => window.__PV_VISUAL_READY__ === true, {
-        timeout: 15000
-      });
 
-      const targetSelector = await page.evaluate(() => window.__PV_VISUAL_TARGET__ ?? "[data-visual-root]");
-      const target = await page.$(targetSelector);
-      if (!target) {
-        throw new Error(`Could not find screenshot target "${targetSelector}" for scenario "${scenarioName}".`);
+      try {
+        await page.setViewport(scenario.viewport);
+        await page.emulateTimezone("UTC");
+        await installFixedDate(page);
+        const scenarioPage = scenario.page ?? "harness.html";
+        await page.goto(`${baseUrl}/tests/visual/${scenarioPage}?scenario=${encodeURIComponent(scenarioName)}`, {
+          waitUntil: "networkidle0"
+        });
+        await page.waitForFunction(() => window.__PV_VISUAL_READY__ === true, {
+          timeout: 15000
+        });
+
+        const targetSelector = await page.evaluate(() => window.__PV_VISUAL_TARGET__ ?? "[data-visual-root]");
+        const target = await page.$(targetSelector);
+        if (!target) {
+          throw new Error(`Could not find screenshot target "${targetSelector}" for scenario "${scenarioName}".`);
+        }
+
+        const actualPath = path.join(actualDir, `${scenarioName}.png`);
+        await target.screenshot({ path: actualPath });
+        results.push(await compareSnapshot(scenario.snapshotName, actualPath));
+      } catch (error) {
+        results.push({
+          scenarioName: scenario.snapshotName,
+          status: "failed",
+          diffPixels: 0,
+          message: error instanceof Error ? error.message : String(error)
+        });
+      } finally {
+        await page.close();
       }
-
-      const actualPath = path.join(actualDir, `${scenarioName}.png`);
-      await target.screenshot({ path: actualPath });
-      results.push(await compareSnapshot(scenario.snapshotName, actualPath));
-      await page.close();
     }
   } finally {
     await browser.close();
@@ -236,7 +255,8 @@ const run = async () => {
 
   for (const result of results) {
     const suffix = result.diffPixels > 0 ? ` (${result.diffPixels} diff pixels)` : "";
-    console.log(`${result.status.toUpperCase()}: ${result.scenarioName}${suffix}`);
+    const message = result.message ? ` - ${result.message}` : "";
+    console.log(`${result.status.toUpperCase()}: ${result.scenarioName}${suffix}${message}`);
   }
 
   console.log(
@@ -244,7 +264,10 @@ const run = async () => {
   );
 
   if (failed.length > 0) {
-    throw new Error(`Visual regression detected in ${failed.length} scenario(s). Review tests/visual/diff/.`);
+    const failedNames = failed.map((result) => result.scenarioName).join(", ");
+    throw new Error(
+      `Visual regression detected in ${failed.length} scenario(s): ${failedNames}. Review tests/visual/actual/ and tests/visual/diff/.`
+    );
   }
 };
 
