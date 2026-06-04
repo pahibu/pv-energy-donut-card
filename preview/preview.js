@@ -17,6 +17,7 @@ const previewSettings = {
   ringSize: "balanced",
   segmentSpacing: "relaxed",
   labelPreset: "balanced",
+  labelDistance: "balanced",
   language: "de",
   theme: "dark"
 };
@@ -30,6 +31,8 @@ const translations = {
     cardModeSubtitle: "Wechsle zwischen der einfachen Ansicht und dem neuen Zeitnavigator",
     chartLabelPreset: "Labelstil",
     chartLabelPresetSubtitle: "Wähle zwischen ausgewogenen, kompakten, minimalen oder hervorgehobenen Connector-Labels",
+    chartLabelDistance: "Labelabstand",
+    chartLabelDistanceSubtitle: "Steuere, wie weit Connector-Labels auf breiten Karten vom Donut entfernt sitzen",
     chartRingSize: "Ringgröße",
     chartRingSizeSubtitle: "Wähle zwischen einem feinen, luftigen, ausgewogenen oder kräftigeren Donut-Ring",
     chartSpacing: "Segmentabstand",
@@ -43,6 +46,9 @@ const translations = {
     labelPresetCompact: "Kompakt",
     labelPresetHighlight: "Hervorgehoben",
     labelPresetMinimal: "Minimal",
+    labelDistanceBalanced: "Ausgewogen",
+    labelDistanceCompact: "Eng",
+    labelDistanceWide: "Weit",
     languageLabel: "Sprache",
     themeLabel: "Thema",
     themeDark: "Dunkel",
@@ -72,6 +78,8 @@ const translations = {
     cardModeSubtitle: "Switch between the simple view and the new period navigator",
     chartLabelPreset: "Label style",
     chartLabelPresetSubtitle: "Choose between balanced, compact, minimal, or highlighted connector labels",
+    chartLabelDistance: "Label distance",
+    chartLabelDistanceSubtitle: "Control how far connector labels sit away from the donut on wide cards",
     chartRingSize: "Ring size",
     chartRingSizeSubtitle: "Choose between a thinner, airy, balanced, or bolder donut ring",
     chartSpacing: "Segment spacing",
@@ -85,6 +93,9 @@ const translations = {
     labelPresetCompact: "Compact",
     labelPresetHighlight: "Highlight",
     labelPresetMinimal: "Minimal",
+    labelDistanceBalanced: "Balanced",
+    labelDistanceCompact: "Compact",
+    labelDistanceWide: "Wide",
     languageLabel: "Language",
     themeLabel: "Theme",
     themeDark: "Dark",
@@ -230,6 +241,7 @@ const config = {
   ring_size: "balanced",
   segment_spacing: "relaxed",
   label_preset: "balanced",
+  label_distance: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -375,6 +387,7 @@ const renderCard = () => {
   config.ring_size = previewSettings.ringSize;
   config.segment_spacing = previewSettings.segmentSpacing;
   config.label_preset = previewSettings.labelPreset;
+  config.label_distance = previewSettings.labelDistance;
   nextCard.setConfig(config);
   nextCard.hass = createPreviewHass();
   const stage = document.createElement("div");
@@ -743,6 +756,55 @@ const createLabelPresetControl = () => {
   return section;
 };
 
+const createLabelDistanceControl = () => {
+  const text = getText();
+  const section = document.createElement("section");
+  section.className = "control-panel";
+
+  const heading = document.createElement("div");
+  heading.className = "control-panel-heading";
+  heading.textContent = text.chartLabelDistance;
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "control-panel-subtitle";
+  subtitle.textContent = text.chartLabelDistanceSubtitle;
+
+  const row = document.createElement("label");
+  row.className = "control-row";
+
+  const title = document.createElement("span");
+  title.className = "control-label";
+  title.textContent = text.chartLabelDistance;
+
+  const select = document.createElement("select");
+  select.className = "control-slider";
+  select.style.setProperty("--accent", "#7fc8ff");
+
+  const wideOption = document.createElement("option");
+  wideOption.value = "wide";
+  wideOption.textContent = text.labelDistanceWide;
+
+  const balancedOption = document.createElement("option");
+  balancedOption.value = "balanced";
+  balancedOption.textContent = text.labelDistanceBalanced;
+
+  const compactOption = document.createElement("option");
+  compactOption.value = "compact";
+  compactOption.textContent = text.labelDistanceCompact;
+
+  select.append(wideOption, balancedOption, compactOption);
+  select.value = previewSettings.labelDistance;
+  select.addEventListener("change", () => {
+    previewSettings.labelDistance =
+      select.value === "wide" || select.value === "compact" ? select.value : "balanced";
+    updateCard();
+  });
+
+  row.append(title, select);
+  section.append(heading, subtitle, row);
+  return section;
+};
+
 const createLanguageSwitcher = () => {
   const text = getText();
   const wrapper = document.createElement("div");
@@ -818,6 +880,7 @@ const renderControls = () => {
   controlsRoot?.append(createRingSizeControl());
   controlsRoot?.append(createSpacingControl());
   controlsRoot?.append(createLabelPresetControl());
+  controlsRoot?.append(createLabelDistanceControl());
 
   for (const group of getSliderGroups()) {
     const section = document.createElement("section");

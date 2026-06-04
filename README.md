@@ -106,6 +106,34 @@ Example:
 label_preset: compact
 ```
 
+### Label Distance
+
+Choose between `wide`, `balanced`, and `compact` to control how far connector labels sit away from the donut.
+
+`wide`
+
+Places labels close to the card edges.
+
+![Wide connector label distance](docs/images/en/screenshots/midnight-stage/label-distance-wide.png)
+
+`balanced`
+
+Default. Caps the virtual label width at 600px so labels stop drifting outward on wider cards.
+
+![Balanced connector label distance](docs/images/en/screenshots/midnight-stage/label-distance-balanced.png)
+
+`compact`
+
+Caps the virtual label width at 520px for shorter connector lines.
+
+![Compact connector label distance](docs/images/en/screenshots/midnight-stage/label-distance-compact.png)
+
+Example:
+
+```yaml
+label_distance: balanced
+```
+
 ## 🧭 Modes
 
 ### `simple`
@@ -175,6 +203,7 @@ mode: simple
 ring_size: balanced
 segment_spacing: relaxed
 label_preset: balanced
+label_distance: balanced
 value_precision: 1
 total_precision: 1
 charts:
@@ -222,6 +251,7 @@ charts:
 - `ring_size`: `thin`, `airy`, `balanced`, or `bold`
 - `segment_spacing`: `relaxed`, `compact`, or `none`
 - `label_preset`: `balanced`, `compact`, `minimal`, or `highlight`
+- `label_distance`: `wide`, `balanced`, or `compact`
 - `value_precision`: decimal places for segment values
 - `total_precision`: decimal places for the center total
 - `charts`: one or two chart definitions

@@ -22,6 +22,7 @@ export const createBaseConfig = () => ({
   mode: "simple",
   ring_size: "balanced",
   label_preset: "balanced",
+  label_distance: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -78,6 +79,7 @@ export const createSingleChartConfig = () => ({
   mode: "simple",
   ring_size: "balanced",
   label_preset: "balanced",
+  label_distance: "balanced",
   value_precision: 1,
   total_precision: 1,
   charts: [
@@ -240,6 +242,54 @@ export const visualScenarios = {
     config: {
       ...createSingleChartConfig(),
       label_preset: "highlight"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-distance-wide": {
+    snapshotName: "label-distance-wide",
+    viewport: {
+      width: 1100,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 860,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createBaseConfig(),
+      label_distance: "wide"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-distance-balanced": {
+    snapshotName: "label-distance-balanced",
+    viewport: {
+      width: 1100,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 860,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createBaseConfig(),
+      label_distance: "balanced"
+    },
+    stateValues: createBaseStateValues()
+  },
+  "label-distance-compact": {
+    snapshotName: "label-distance-compact",
+    viewport: {
+      width: 1100,
+      height: 760,
+      deviceScaleFactor: 1
+    },
+    cardWidth: 860,
+    locale: "en-US",
+    theme: sharedTheme,
+    config: {
+      ...createBaseConfig(),
+      label_distance: "compact"
     },
     stateValues: createBaseStateValues()
   },

@@ -23,6 +23,9 @@ describe("i18n", () => {
     expect(getTranslations("en-US").labelPresetField).toBe("Label style");
     expect(getTranslations("de-DE").labelPresetCompact).toBe("Kompakt");
     expect(getTranslations("en-US").labelPresetHighlight).toBe("Highlight");
+    expect(getTranslations("en-US").labelDistanceField).toBe("Label distance");
+    expect(getTranslations("de-DE").labelDistanceCompact).toBe("Eng");
+    expect(getTranslations("en-US").labelDistanceWide).toBe("Wide");
   });
 
   it("formats localized history errors", () => {

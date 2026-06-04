@@ -108,6 +108,34 @@ Beispiel:
 label_preset: compact
 ```
 
+### Labelabstand
+
+Wähle zwischen `wide`, `balanced` und `compact`, um zu steuern, wie weit Connector-Labels vom Donut entfernt sitzen.
+
+`wide`
+
+Platziert Labels nah am Kartenrand.
+
+![Weiter Connector-Labelabstand](docs/images/de/screenshots/midnight-stage/label-distance-wide.png)
+
+`balanced`
+
+Standard. Begrenzt die virtuelle Labelbreite auf 600px, damit Labels auf breiten Karten nicht weiter nach außen wandern.
+
+![Ausgewogener Connector-Labelabstand](docs/images/de/screenshots/midnight-stage/label-distance-balanced.png)
+
+`compact`
+
+Begrenzt die virtuelle Labelbreite auf 520px für kürzere Connector-Linien.
+
+![Enger Connector-Labelabstand](docs/images/de/screenshots/midnight-stage/label-distance-compact.png)
+
+Beispiel:
+
+```yaml
+label_distance: balanced
+```
+
 ## Modi
 
 ### `simple`
@@ -177,6 +205,7 @@ mode: simple
 ring_size: balanced
 segment_spacing: relaxed
 label_preset: balanced
+label_distance: balanced
 value_precision: 1
 total_precision: 1
 charts:
@@ -224,6 +253,7 @@ charts:
 - `ring_size`: `thin`, `airy`, `balanced` oder `bold`
 - `segment_spacing`: `relaxed`, `compact` oder `none`
 - `label_preset`: `balanced`, `compact`, `minimal` oder `highlight`
+- `label_distance`: `wide`, `balanced` oder `compact`
 - `value_precision`: Nachkommastellen für Segmentwerte
 - `total_precision`: Nachkommastellen für den zentralen Summenwert
 - `charts`: eine oder zwei Diagrammdefinitionen
