@@ -42,6 +42,7 @@ export const cardStyles = css`
     --pv-label-collision-gap-min: 50;
     --pv-label-value-opacity: 1;
     --pv-label-text-opacity: 1;
+    --pv-label-distance-max-width: 600;
     --pv-chart-padding-y: 20;
     --pv-chart-min-segment-width: 0.5;
     --pv-chart-min-segment-separator-factor: 1.5;

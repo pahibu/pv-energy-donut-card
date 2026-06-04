@@ -16,6 +16,7 @@ import type { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "./types";
 type RingSize = "thin" | "airy" | "balanced" | "bold";
 type SegmentSpacing = "relaxed" | "compact" | "none";
 type LabelPreset = "balanced" | "compact" | "minimal" | "highlight";
+type LabelDistance = "compact" | "balanced" | "wide";
 
 interface SegmentConfig {
   entity: string;
@@ -40,6 +41,7 @@ interface CardConfig {
   ring_size?: RingSize;
   segment_spacing?: SegmentSpacing;
   label_preset?: LabelPreset;
+  label_distance?: LabelDistance;
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
@@ -67,6 +69,7 @@ interface NormalizedCardConfig {
   ringSize: RingSize;
   segmentSpacing: SegmentSpacing;
   labelPreset: LabelPreset;
+  labelDistance: LabelDistance;
   valuePrecision: number;
   totalPrecision: number;
   charts: NormalizedChartConfig[];
@@ -81,6 +84,8 @@ const isSegmentSpacing = (value: unknown): value is SegmentSpacing =>
   value === "relaxed" || value === "compact" || value === "none";
 const isLabelPreset = (value: unknown): value is LabelPreset =>
   value === "balanced" || value === "compact" || value === "minimal" || value === "highlight";
+const isLabelDistance = (value: unknown): value is LabelDistance =>
+  value === "compact" || value === "balanced" || value === "wide";
 
 const normalizeCharts = (charts: ChartConfig[] | undefined): NormalizedChartConfig[] =>
   (charts ?? [])
@@ -114,6 +119,7 @@ const normalizeConfig = (config: CardConfig): NormalizedCardConfig => ({
   ringSize: isRingSize(config.ring_size) ? config.ring_size : "balanced",
   segmentSpacing: isSegmentSpacing(config.segment_spacing) ? config.segment_spacing : "relaxed",
   labelPreset: isLabelPreset(config.label_preset) ? config.label_preset : "balanced",
+  labelDistance: isLabelDistance(config.label_distance) ? config.label_distance : "balanced",
   valuePrecision: Number.isInteger(config.value_precision) ? Math.max(0, config.value_precision ?? 0) : 1,
   totalPrecision: Number.isInteger(config.total_precision) ? Math.max(0, config.total_precision ?? 0) : 1,
   charts: normalizeCharts(config.charts)
@@ -224,6 +230,18 @@ const LABEL_PRESET_TOKENS: Record<LabelPreset, Record<string, string>> = {
   }
 };
 
+const LABEL_DISTANCE_TOKENS: Record<LabelDistance, { maxWidth: string }> = {
+  compact: {
+    maxWidth: "520"
+  },
+  balanced: {
+    maxWidth: "600"
+  },
+  wide: {
+    maxWidth: "0"
+  }
+};
+
 @customElement(CARD_TAG_NAME)
 export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
   static styles = cardStyles;
@@ -302,6 +320,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
         ringSize: "balanced",
         segmentSpacing: "relaxed",
         labelPreset: "balanced",
+        labelDistance: "balanced",
         valuePrecision: 1,
         totalPrecision: 1,
         charts: []
@@ -314,6 +333,7 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     this.applyRingSizeTokens(normalized.ringSize);
     this.applySegmentSpacingTokens(normalized.segmentSpacing);
     this.applyLabelPresetTokens(normalized.labelPreset);
+    this.applyLabelDistanceTokens(normalized.labelDistance);
     this.periodCache.clear();
     this.periodValues = new Map();
     this.periodError = undefined;
@@ -342,6 +362,11 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
     for (const [property, value] of Object.entries(tokens)) {
       this.style.setProperty(property, value);
     }
+  }
+
+  private applyLabelDistanceTokens(labelDistance: LabelDistance): void {
+    const tokens = LABEL_DISTANCE_TOKENS[labelDistance];
+    this.style.setProperty("--pv-label-distance-max-width", tokens.maxWidth);
   }
 
   public getCardSize(): number {

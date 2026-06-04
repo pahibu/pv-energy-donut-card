@@ -6,6 +6,7 @@ import type { HomeAssistant, LovelaceCardEditor } from "./types";
 type RingSize = "thin" | "airy" | "balanced" | "bold";
 type SegmentSpacing = "relaxed" | "compact" | "none";
 type LabelPreset = "balanced" | "compact" | "minimal" | "highlight";
+type LabelDistance = "compact" | "balanced" | "wide";
 
 interface SegmentConfig {
   entity?: string;
@@ -29,6 +30,7 @@ interface CardConfig {
   ring_size?: RingSize;
   segment_spacing?: SegmentSpacing;
   label_preset?: LabelPreset;
+  label_distance?: LabelDistance;
   value_precision?: number;
   total_precision?: number;
   charts?: ChartConfig[];
@@ -41,6 +43,8 @@ const isSegmentSpacing = (value: unknown): value is SegmentSpacing =>
   value === "relaxed" || value === "compact" || value === "none";
 const isLabelPreset = (value: unknown): value is LabelPreset =>
   value === "balanced" || value === "compact" || value === "minimal" || value === "highlight";
+const isLabelDistance = (value: unknown): value is LabelDistance =>
+  value === "compact" || value === "balanced" || value === "wide";
 
 const createDefaultSegment = (index: number): SegmentConfig => ({
   entity: "",
@@ -176,6 +180,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     ring_size: "balanced",
     segment_spacing: "relaxed",
     label_preset: "balanced",
+    label_distance: "balanced",
     title: "",
     charts: [createDefaultChart(0)]
   };
@@ -201,6 +206,7 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
       ring_size: isRingSize(config?.ring_size) ? config.ring_size : "balanced",
       segment_spacing: isSegmentSpacing(config?.segment_spacing) ? config.segment_spacing : "relaxed",
       label_preset: isLabelPreset(config?.label_preset) ? config.label_preset : "balanced",
+      label_distance: isLabelDistance(config?.label_distance) ? config.label_distance : "balanced",
       value_precision: config?.value_precision,
       total_precision: config?.total_precision,
       charts: (config?.charts?.length ? config.charts : [createDefaultChart(0)]).map((chart, chartIndex) => ({
@@ -274,6 +280,14 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
                 <option value="compact">${this.ui.labelPresetCompact}</option>
                 <option value="minimal">${this.ui.labelPresetMinimal}</option>
                 <option value="highlight">${this.ui.labelPresetHighlight}</option>
+              </select>
+            </label>
+            <label>
+              ${this.ui.labelDistanceField}
+              <select .value=${this.config.label_distance ?? "balanced"} @change=${this.handleLabelDistanceChange}>
+                <option value="wide">${this.ui.labelDistanceWide}</option>
+                <option value="balanced">${this.ui.labelDistanceBalanced}</option>
+                <option value="compact">${this.ui.labelDistanceCompact}</option>
               </select>
             </label>
           </div>
@@ -447,6 +461,14 @@ export class PvEnergyDonutCardEditor extends LitElement implements LovelaceCardE
     this.emitConfig({
       ...this.config,
       label_preset: isLabelPreset(select.value) ? select.value : "balanced"
+    });
+  }
+
+  private handleLabelDistanceChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.emitConfig({
+      ...this.config,
+      label_distance: isLabelDistance(select.value) ? select.value : "balanced"
     });
   }
 

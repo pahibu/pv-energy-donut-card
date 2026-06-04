@@ -211,6 +211,42 @@ const createLanguageScenarios = (language, locale) => {
       stateValues: createBaseStateValues()
     },
     {
+      fileName: "label-distance-wide.png",
+      locale,
+      cardWidth: 860,
+      viewport: { width: 1100, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedConfig,
+        label_distance: "wide"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "label-distance-balanced.png",
+      locale,
+      cardWidth: 860,
+      viewport: { width: 1100, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedConfig,
+        label_distance: "balanced"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
+      fileName: "label-distance-compact.png",
+      locale,
+      cardWidth: 860,
+      viewport: { width: 1100, height: 760, deviceScaleFactor: 1 },
+      theme: docsCardTheme,
+      config: {
+        ...localizedConfig,
+        label_distance: "compact"
+      },
+      stateValues: createBaseStateValues()
+    },
+    {
       fileName: "ring-thin.png",
       locale,
       cardWidth: 520,

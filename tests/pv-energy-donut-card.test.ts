@@ -106,6 +106,35 @@ describe("pv-energy-donut-card config tokens", () => {
     expect(card.style.getPropertyValue("--pv-label-value-opacity")).toBe("1");
   });
 
+  it("defaults to balanced label distance for missing or unsupported values", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-distance-max-width")).toBe("600");
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_distance: "something-else" as "balanced",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-distance-max-width")).toBe("600");
+  });
+
   it("applies airy ring size tokens", () => {
     const card = createCard();
 
@@ -248,5 +277,39 @@ describe("pv-energy-donut-card config tokens", () => {
     expect(card.style.getPropertyValue("--pv-label-percent-scale")).toBe("1.34");
     expect(card.style.getPropertyValue("--pv-label-percent-weight")).toBe("700");
     expect(card.style.getPropertyValue("--pv-label-line-width")).toBe("1.25");
+  });
+
+  it("applies balanced label distance tokens", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_distance: "balanced",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-distance-max-width")).toBe("600");
+  });
+
+  it("applies compact label distance tokens", () => {
+    const card = createCard();
+
+    card.setConfig({
+      type: "custom:pv-energy-donut-card",
+      label_distance: "compact",
+      charts: [
+        {
+          title: "Production",
+          segments: [{ entity: "sensor.feed_in_today" }]
+        }
+      ]
+    });
+
+    expect(card.style.getPropertyValue("--pv-label-distance-max-width")).toBe("520");
   });
 });

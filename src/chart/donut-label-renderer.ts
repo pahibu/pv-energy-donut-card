@@ -206,6 +206,19 @@ const resolvePaddingBounds = (width: number): { minPadding: number; maxPadding: 
   maxPadding: Math.max(64, Math.floor(width * 0.34))
 });
 
+const resolveLabelOuterX = (
+  side: LabelSide,
+  centerX: number,
+  canvasWidth: number,
+  styles: CSSStyleDeclaration
+): number => {
+  const maxDistanceWidth = readCssNumber(styles, "--pv-label-distance-max-width", 0);
+  const distanceWidth = maxDistanceWidth > 0 ? Math.min(canvasWidth, maxDistanceWidth) : canvasWidth;
+  const halfDistance = Math.max(EDGE_MARGIN, distanceWidth / 2 - EDGE_MARGIN);
+
+  return side === "right" ? centerX + halfDistance : centerX - halfDistance;
+};
+
 const createTypography = (
   percentSize: number,
   valueSize: number,
@@ -472,7 +485,7 @@ export class DonutConnectorLabelRenderer {
 
     ctx.save();
     for (const item of [...left, ...right]) {
-      this.drawLabel(ctx, item, typography, valueColor, labelColor);
+      this.drawLabel(ctx, item, typography, valueColor, labelColor, centerX, styles);
     }
     ctx.restore();
   }
@@ -501,13 +514,15 @@ export class DonutConnectorLabelRenderer {
     item: LabelLayout,
     typography: DonutConnectorLabelTypography,
     valueColor: string,
-    labelColor: string
+    labelColor: string,
+    centerX: number,
+    styles: CSSStyleDeclaration
   ): void {
     const measurement = this.measureLabel(ctx, item, typography);
     const normalColor = resolveNormalSegmentColor(item.color);
     const hoverColor = resolveHoverSegmentColor(item.color);
     const accentColor = item.active ? hoverColor : normalColor;
-    const outerX = item.side === "right" ? this.chart.width - EDGE_MARGIN : EDGE_MARGIN;
+    const outerX = resolveLabelOuterX(item.side, centerX, this.chart.width, styles);
     const direction = item.side === "right" ? -1 : 1;
     const lineInnerX = outerX + direction * measurement.blockWidth;
     const lineWidth = Math.max(0.5, typography.lineWidth);
