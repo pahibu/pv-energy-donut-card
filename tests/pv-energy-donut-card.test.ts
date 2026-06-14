@@ -315,13 +315,17 @@ describe("pv-energy-donut-card config tokens", () => {
 });
 
 describe("pv-energy-donut-card layout hooks", () => {
-  it("declares flexible Sections grid sizing without forcing full width", () => {
+  it("declares Sections auto-height sizing without forcing columns", () => {
     const card = createCard();
 
     expect(card.getGridOptions()).toEqual({
-      columns: 12
+      rows: "auto"
     });
-    expect(card.getGridOptions().columns).not.toBe("full");
+    expect(card.getLayoutOptions?.()).toEqual({
+      grid_rows: "auto"
+    });
+    expect(card.getGridOptions().columns).toBeUndefined();
+    expect(card.getLayoutOptions?.().grid_columns).toBeUndefined();
     expect(card.getGridOptions().min_columns).toBeUndefined();
     expect(card.getGridOptions().max_columns).toBeUndefined();
   });
