@@ -18,7 +18,7 @@ export interface LovelaceCardEditor extends HTMLElement {
 }
 
 export interface LovelaceCardGridOptions {
-  rows?: number;
+  rows?: number | "auto";
   columns?: number | "full";
   min_rows?: number;
   max_rows?: number;
@@ -26,11 +26,21 @@ export interface LovelaceCardGridOptions {
   max_columns?: number;
 }
 
+export interface LovelaceCardLayoutOptions {
+  grid_rows?: number | "auto";
+  grid_columns?: number | "full";
+  grid_min_rows?: number;
+  grid_max_rows?: number;
+  grid_min_columns?: number;
+  grid_max_columns?: number;
+}
+
 export interface LovelaceCard extends HTMLElement {
   hass?: HomeAssistant;
   setConfig(config: unknown): void;
   getCardSize(): number;
   getGridOptions(): LovelaceCardGridOptions;
+  getLayoutOptions?(): LovelaceCardLayoutOptions;
 }
 
 declare global {
