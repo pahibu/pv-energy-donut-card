@@ -11,7 +11,7 @@ import { getNumericEntityState } from "./utils/ha-state";
 import { calculatePercentages } from "./utils/math";
 import { getPeriodRange, isCurrentOpenPeriod, type PeriodUnit } from "./utils/period";
 import { getSegmentSourceEntity, type CardMode } from "./utils/segment-source";
-import type { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "./types";
+import type { HomeAssistant, LovelaceCard, LovelaceCardEditor, LovelaceCardGridOptions } from "./types";
 
 type RingSize = "thin" | "airy" | "balanced" | "bold";
 type SegmentSpacing = "relaxed" | "compact" | "none";
@@ -78,6 +78,7 @@ interface NormalizedCardConfig {
 const DEFAULT_SEGMENT_COLORS = ["#5dade2", "#f5b041", "#58d68d", "#af7ac5", "#ec7063"];
 const DEFAULT_UNIT = "kWh";
 const CARD_TAG_NAME = "pv-energy-donut-card";
+const SECTIONS_GRID_COLUMNS = 12;
 const isRingSize = (value: unknown): value is RingSize =>
   value === "thin" || value === "airy" || value === "balanced" || value === "bold";
 const isSegmentSpacing = (value: unknown): value is SegmentSpacing =>
@@ -371,6 +372,12 @@ export class PvEnergyDonutCard extends LitElement implements LovelaceCard {
 
   public getCardSize(): number {
     return this.config?.charts.length === 2 ? 5 : 3;
+  }
+
+  public getGridOptions(): LovelaceCardGridOptions {
+    return {
+      columns: SECTIONS_GRID_COLUMNS
+    };
   }
 
   protected render() {

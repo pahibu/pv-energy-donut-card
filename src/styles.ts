@@ -3,6 +3,7 @@ import { css } from "lit";
 export const cardStyles = css`
   :host {
     display: block;
+    min-width: 0;
     --pv-card-background: var(--ha-card-background, var(--card-background-color, var(--card-background-color, #ffffff)));
     --pv-card-border: var(--ha-card-border-color, var(--divider-color, rgba(127, 127, 127, 0.2)));
     --pv-card-title: var(--primary-text-color, #1f2a36);
@@ -51,6 +52,9 @@ export const cardStyles = css`
 
   ha-card {
     display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     container-type: inline-size;
     color: var(--pv-card-text);
     overflow: hidden;
@@ -64,6 +68,8 @@ export const cardStyles = css`
   }
 
   .card-shell {
+    width: 100%;
+    box-sizing: border-box;
     padding: 20px 20px 18px;
   }
 
@@ -190,6 +196,8 @@ export const cardStyles = css`
     display: grid;
     align-items: stretch;
     gap: 16px;
+    width: 100%;
+    min-width: 0;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--pv-chart-min-width)), 1fr));
   }
 
@@ -201,12 +209,17 @@ export const cardStyles = css`
     position: relative;
     min-height: 280px;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .chart-canvas-wrap {
     position: relative;
     isolation: isolate;
     min-height: 280px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .chart-grid[data-chart-count="2"] .chart-panel + .chart-panel::before {
