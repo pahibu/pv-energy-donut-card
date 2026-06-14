@@ -17,10 +17,20 @@ export interface LovelaceCardEditor extends HTMLElement {
   setConfig?(config: unknown): void;
 }
 
+export interface LovelaceCardGridOptions {
+  rows?: number;
+  columns?: number | "full";
+  min_rows?: number;
+  max_rows?: number;
+  min_columns?: number;
+  max_columns?: number;
+}
+
 export interface LovelaceCard extends HTMLElement {
   hass?: HomeAssistant;
   setConfig(config: unknown): void;
   getCardSize(): number;
+  getGridOptions(): LovelaceCardGridOptions;
 }
 
 declare global {

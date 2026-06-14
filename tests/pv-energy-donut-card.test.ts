@@ -313,3 +313,16 @@ describe("pv-energy-donut-card config tokens", () => {
     expect(card.style.getPropertyValue("--pv-label-distance-max-width")).toBe("520");
   });
 });
+
+describe("pv-energy-donut-card layout hooks", () => {
+  it("declares flexible Sections grid sizing without forcing full width", () => {
+    const card = createCard();
+
+    expect(card.getGridOptions()).toEqual({
+      columns: 12
+    });
+    expect(card.getGridOptions().columns).not.toBe("full");
+    expect(card.getGridOptions().min_columns).toBeUndefined();
+    expect(card.getGridOptions().max_columns).toBeUndefined();
+  });
+});
