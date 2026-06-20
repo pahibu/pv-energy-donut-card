@@ -14,6 +14,47 @@ Eine hochwertige Home-Assistant-Lovelace-Karte für Photovoltaik-Energie-Dashboa
 
 `pv-energy-donut-card` rendert ein oder zwei responsive Donut-Diagramme für Produktions- und Verbrauchsaufteilungen, mit großen Prozentwerten, Connector-Linien und klaren Summenwerten im Zentrum.
 
+## Installation
+
+### HACS
+
+PV Energy Donut Card ist in [HACS](https://www.hacs.xyz/) (Home Assistant Community Store) verfügbar.
+
+Mit diesem Link öffnest du das Repository direkt in HACS:
+
+[![Öffne deine Home-Assistant-Instanz und öffne das PV Energy Donut Card Repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?category=plugin&owner=pahibu&repository=pv-energy-donut-card)
+
+1. Öffne HACS in Home Assistant.
+2. Wechsle zu `Dashboard`.
+3. Suche nach `PV Energy Donut Card`.
+4. Installiere `PV Energy Donut Card`.
+5. Aktualisiere den Browser oder starte Home Assistant bei Bedarf neu.
+
+HACS verwaltet die Dashboard-Resource normalerweise automatisch. Falls du sie manuell hinzufügen musst, verwende:
+
+```yaml
+url: /local/community/pv-energy-donut-card/pv-energy-donut-card.js
+type: module
+```
+
+### Manuelle Installation
+
+Wenn du HACS nicht verwendest, kannst du die Karte manuell installieren.
+
+1. Lade `pv-energy-donut-card.js` aus dem neuesten Release herunter.
+2. Kopiere die Datei nach:
+
+```text
+config/www/pv-energy-donut-card/pv-energy-donut-card.js
+```
+
+3. Füge die Resource in Home Assistant hinzu:
+
+```yaml
+url: /local/pv-energy-donut-card/pv-energy-donut-card.js
+type: module
+```
+
 ## Features
 
 - Home-Assistant-Lovelace-Karte für PV-Produktions- und Verbrauchs-Donuts
@@ -160,43 +201,6 @@ Geeignet für:
 
 > [!NOTE]
 > Wenn `daily_entity` konfiguriert ist, wird es für den aktuellen Tag verwendet, während ältere Zeiträume aus Statistik- oder Verlaufsdaten geladen werden.
-
-## Installation
-
-### HACS
-
-[![Öffne deine Home-Assistant-Instanz und öffne das PV Energy Donut Card Repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?category=plugin&owner=pahibu&repository=pv-energy-donut-card)
-
-1. Öffne HACS in Home Assistant.
-2. Wechsle zu `Dashboard`.
-3. Suche nach `PV Energy Donut Card`.
-4. Installiere `PV Energy Donut Card`.
-5. Aktualisiere den Browser oder starte Home Assistant bei Bedarf neu.
-
-HACS verwaltet die Dashboard-Resource normalerweise automatisch. Falls du sie manuell hinzufügen musst, verwende:
-
-```yaml
-url: /local/community/pv-energy-donut-card/pv-energy-donut-card.js
-type: module
-```
-
-### Manuelle Installation
-
-Wenn du HACS nicht verwendest, kannst du die Karte manuell installieren.
-
-1. Lade `pv-energy-donut-card.js` aus dem neuesten Release herunter.
-2. Kopiere die Datei nach:
-
-```text
-config/www/pv-energy-donut-card/pv-energy-donut-card.js
-```
-
-3. Füge die Resource in Home Assistant hinzu:
-
-```yaml
-url: /local/pv-energy-donut-card/pv-energy-donut-card.js
-type: module
-```
 
 ## Lovelace-Verwendung
 
