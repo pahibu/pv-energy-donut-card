@@ -163,6 +163,10 @@ Best for:
 
 ### HACS
 
+PV Energy Donut Card is available in [HACS](https://www.hacs.xyz/) (Home Assistant Community Store).
+
+Use this link to open the repository directly in HACS:
+
 [![Open your Home Assistant instance and open the PV Energy Donut Card repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?category=plugin&owner=pahibu&repository=pv-energy-donut-card)
 
 1. Open HACS in Home Assistant.
