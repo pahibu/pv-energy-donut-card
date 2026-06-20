@@ -4,7 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/typescript-5.x-3178C6)
 ![Lizenz](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-community%20project-orange)
-![HACS](https://img.shields.io/badge/HACS-custom-orange)
+![HACS](https://img.shields.io/badge/HACS-default-orange)
 
 # PV Energy Donut Card
 
@@ -163,17 +163,17 @@ Geeignet für:
 
 ## Installation
 
-### HACS Custom Repository
+### HACS
+
+[![Öffne deine Home-Assistant-Instanz und öffne das PV Energy Donut Card Repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?category=plugin&owner=pahibu&repository=pv-energy-donut-card)
 
 1. Öffne HACS in Home Assistant.
-2. Wechsle zu `Frontend`.
-3. Öffne das Overflow-Menü und wähle `Custom repositories`.
-4. Füge `https://github.com/pahibu/pv-energy-donut-card` hinzu.
-5. Wähle als Kategorie `Dashboard`.
-6. Installiere `PV Energy Donut Card`.
-7. Starte Home Assistant bei Bedarf neu.
+2. Wechsle zu `Dashboard`.
+3. Suche nach `PV Energy Donut Card`.
+4. Installiere `PV Energy Donut Card`.
+5. Aktualisiere den Browser oder starte Home Assistant bei Bedarf neu.
 
-Die Resource ist typischerweise verfügbar unter:
+HACS verwaltet die Dashboard-Resource normalerweise automatisch. Falls du sie manuell hinzufügen musst, verwende:
 
 ```yaml
 url: /local/community/pv-energy-donut-card/pv-energy-donut-card.js
@@ -182,7 +182,9 @@ type: module
 
 ### Manuelle Installation
 
-1. Lade `dist/pv-energy-donut-card.js` aus dem neuesten Release herunter.
+Wenn du HACS nicht verwendest, kannst du die Karte manuell installieren.
+
+1. Lade `pv-energy-donut-card.js` aus dem neuesten Release herunter.
 2. Kopiere die Datei nach:
 
 ```text
