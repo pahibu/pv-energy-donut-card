@@ -250,6 +250,58 @@ charts:
         color: "#ec7063"
 ```
 
+## Home-Assistant-Sensorbeispiele
+
+Einige Wechselrichter- oder Zähler-Integrationen liefern keinen eigenen Sensor für PV-Eigenverbrauch. Du kannst ihn aus PV-Produktion, Batterieladung und Netzeinspeisung berechnen.
+
+Passe die Entity-IDs an dein eigenes Setup an:
+
+```yaml
+template:
+  - sensor:
+      - name: "PV Self Consumption Power"
+        unique_id: pv_self_consumption_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set pv = states('sensor.pv_total_power') | float(0) %}
+          {% set battery_charge = states('sensor.battery_charge_power') | float(0) %}
+          {% set grid_export = states('sensor.grid_export_power') | float(0) %}
+          {% set self_consumption = pv - battery_charge - grid_export %}
+          {{ [self_consumption, 0] | max | round(0) }}
+```
+
+Wandle den Leistungssensor anschließend in einen Energiesensor in `kWh` um:
+
+```yaml
+sensor:
+  - platform: integration
+    name: "PV Self Consumption Energy"
+    unique_id: pv_self_consumption_energy_kwh
+    source: sensor.pv_self_consumption_power
+    unit_prefix: k
+    round: 3
+    method: left
+```
+
+Wenn du Tages-, Monats- oder Jahreswerte für `daily_entity` oder `time_navigator` verwenden möchtest, ergänze Utility Meter:
+
+```yaml
+utility_meter:
+  pv_self_consumption_daily:
+    source: sensor.pv_self_consumption_energy
+    cycle: daily
+
+  pv_self_consumption_monthly:
+    source: sensor.pv_self_consumption_energy
+    cycle: monthly
+
+  pv_self_consumption_yearly:
+    source: sensor.pv_self_consumption_energy
+    cycle: yearly
+```
+
 ## Konfigurationsüberblick
 
 - `type`: muss `custom:pv-energy-donut-card` sein

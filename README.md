@@ -248,6 +248,58 @@ charts:
         color: "#ec7063"
 ```
 
+## Home Assistant Sensor Examples
+
+Some inverter or meter integrations do not provide a dedicated PV self-consumption sensor. You can derive it from PV production, battery charge, and grid export power.
+
+Adjust the entity IDs to match your setup:
+
+```yaml
+template:
+  - sensor:
+      - name: "PV Self Consumption Power"
+        unique_id: pv_self_consumption_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set pv = states('sensor.pv_total_power') | float(0) %}
+          {% set battery_charge = states('sensor.battery_charge_power') | float(0) %}
+          {% set grid_export = states('sensor.grid_export_power') | float(0) %}
+          {% set self_consumption = pv - battery_charge - grid_export %}
+          {{ [self_consumption, 0] | max | round(0) }}
+```
+
+Convert the power sensor into an energy sensor in `kWh`:
+
+```yaml
+sensor:
+  - platform: integration
+    name: "PV Self Consumption Energy"
+    unique_id: pv_self_consumption_energy_kwh
+    source: sensor.pv_self_consumption_power
+    unit_prefix: k
+    round: 3
+    method: left
+```
+
+If you want daily, monthly, or yearly values for `daily_entity` or `time_navigator`, add utility meters:
+
+```yaml
+utility_meter:
+  pv_self_consumption_daily:
+    source: sensor.pv_self_consumption_energy
+    cycle: daily
+
+  pv_self_consumption_monthly:
+    source: sensor.pv_self_consumption_energy
+    cycle: monthly
+
+  pv_self_consumption_yearly:
+    source: sensor.pv_self_consumption_energy
+    cycle: yearly
+```
+
 ## ⚙️ Configuration Overview
 
 - `type`: must be `custom:pv-energy-donut-card`
