@@ -134,7 +134,7 @@ const createIphoneScenario = ({
 }) => ({
   snapshotName,
   viewport,
-  cardWidth: 369,
+  cardWidth: viewport.width - 24,
   pagePadding: "12px",
   locale,
   theme: sharedTheme,
@@ -143,6 +143,14 @@ const createIphoneScenario = ({
 });
 
 export const visualScenarios = {
+  ...Object.fromEntries(["balanced", "compact", "minimal", "highlight"].map((preset) => {
+    const name = `iphone-large-label-${preset}`;
+    return [name, createIphoneScenario({
+      snapshotName: name,
+      viewport: { ...iphoneViewport, width: 430, height: 932 },
+      config: { ...createSingleChartConfig(), label_preset: preset }
+    })];
+  })),
   "simple-default": {
     snapshotName: "simple-default",
     viewport: {

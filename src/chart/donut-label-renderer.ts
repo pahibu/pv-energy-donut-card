@@ -528,7 +528,7 @@ export class DonutConnectorLabelRenderer {
     const lineWidth = Math.max(0.5, typography.lineWidth);
     const topRowY = item.labelTopY - typography.topRowYShift;
     const topRowBaselineY = topRowY + typography.solarFlarePercent.size * 0.28;
-    const topRowTextOffset = this.chart.currentDevicePixelRatio > 1 ? 3 : 0;
+    let topRowTextOffset = this.chart.currentDevicePixelRatio > 1 ? 3 : 0;
     const percentMetrics = this.measureTextMetrics(ctx, typography.solarFlarePercent.font, item.percentageText);
     const valueMetrics = this.measureTextMetrics(ctx, typography.wattFlowValue.font, item.valueText);
     const percentDescent = percentMetrics.actualBoundingBoxDescent || typography.solarFlarePercent.size * 0.16;
@@ -539,6 +539,21 @@ export class DonutConnectorLabelRenderer {
     const labelTopEdgeY = labelY - typography.labelHalfHeight;
     const topRowBottomY = Math.max(percentY, valueY);
     const lineY = topRowBottomY + (labelTopEdgeY - topRowBottomY) * 0.6;
+    if (this.chart.currentDevicePixelRatio > 1) {
+      // Measure against the drawing baseline without changing connector geometry.
+      const percentInk = this.measureTextMetrics(ctx, typography.solarFlarePercent.font, item.percentageText, "alphabetic");
+      const valueInk = this.measureTextMetrics(ctx, typography.wattFlowValue.font, item.valueText, "alphabetic");
+      const percentInkDescent = Number.isFinite(percentInk.actualBoundingBoxDescent)
+        ? percentInk.actualBoundingBoxDescent : typography.solarFlarePercent.size * 0.16;
+      const valueInkDescent = Number.isFinite(valueInk.actualBoundingBoxDescent)
+        ? valueInk.actualBoundingBoxDescent : typography.wattFlowValue.size * 0.16;
+      const inkBottomY = Math.max(
+        percentY + percentInkDescent * (item.active ? HOVER_PERCENT_SCALE : 1),
+        valueY + valueInkDescent
+      );
+      const strokeWidth = item.active ? lineWidth + 0.5 : lineWidth;
+      topRowTextOffset = Math.max(topRowTextOffset, inkBottomY - (lineY - strokeWidth / 2 - 3));
+    }
     const topRowInnerX = item.side === "right"
       ? outerX - measurement.topRowWidth
       : outerX + measurement.topRowWidth;
@@ -597,10 +612,14 @@ export class DonutConnectorLabelRenderer {
   private measureTextMetrics(
     ctx: CanvasRenderingContext2D,
     font: string,
-    text: string
+    text: string,
+    baseline?: CanvasTextBaseline
   ): TextMetrics {
     ctx.save();
     ctx.font = font;
+    if (baseline) {
+      ctx.textBaseline = baseline;
+    }
     const metrics = ctx.measureText(text);
     ctx.restore();
     return metrics;
