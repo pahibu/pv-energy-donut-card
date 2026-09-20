@@ -528,6 +528,7 @@ export class DonutConnectorLabelRenderer {
     const lineWidth = Math.max(0.5, typography.lineWidth);
     const topRowY = item.labelTopY - typography.topRowYShift;
     const topRowBaselineY = topRowY + typography.solarFlarePercent.size * 0.28;
+    const topRowTextOffset = this.chart.currentDevicePixelRatio > 1 ? 3 : 0;
     const percentMetrics = this.measureTextMetrics(ctx, typography.solarFlarePercent.font, item.percentageText);
     const valueMetrics = this.measureTextMetrics(ctx, typography.wattFlowValue.font, item.valueText);
     const percentDescent = percentMetrics.actualBoundingBoxDescent || typography.solarFlarePercent.size * 0.16;
@@ -572,7 +573,7 @@ export class DonutConnectorLabelRenderer {
       typography,
       measurement.percentWidth,
       percentX,
-      percentY,
+      percentY - topRowTextOffset,
       accentColor
     );
 
@@ -580,7 +581,7 @@ export class DonutConnectorLabelRenderer {
     ctx.globalAlpha = typography.valueOpacity;
     ctx.fillStyle = valueColor;
     ctx.font = typography.wattFlowValue.font;
-    ctx.fillText(item.valueText, valueX, valueY);
+    ctx.fillText(item.valueText, valueX, valueY - topRowTextOffset);
     ctx.restore();
 
     ctx.save();

@@ -138,6 +138,7 @@ const waitForPaint = async () => {
 
 const renderScenario = async () => {
   document.documentElement.style.setProperty("--visual-card-width", `${scenario.cardWidth}px`);
+  document.documentElement.style.setProperty("--visual-page-padding", scenario.pagePadding ?? "36px");
   const card = document.createElement("pv-energy-donut-card");
   card.setAttribute("preview-theme", "");
   card.setAttribute("data-visual-root", "");

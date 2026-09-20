@@ -19,6 +19,7 @@
     "test": "vitest run",
     "screenshots:docs": "node tests/visual/export-doc-screenshots.mjs",
     "test:visual": "node tests/visual/run-visual-tests.mjs",
+    "test:visual:iphone": "node tests/visual/run-visual-tests.mjs --filter=iphone",
     "test:visual:update": "node tests/visual/run-visual-tests.mjs --update",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

@@ -117,6 +117,31 @@ export const createBaseStateValues = () => ({
   "sensor.preview_grid_import_today": 3.8
 });
 
+const iphoneViewport = {
+  width: 393,
+  height: 852,
+  deviceScaleFactor: 3,
+  isMobile: true,
+  hasTouch: true
+};
+
+const createIphoneScenario = ({
+  snapshotName,
+  config,
+  stateValues = createBaseStateValues(),
+  locale = "en-US",
+  viewport = iphoneViewport
+}) => ({
+  snapshotName,
+  viewport,
+  cardWidth: 369,
+  pagePadding: "12px",
+  locale,
+  theme: sharedTheme,
+  config,
+  stateValues
+});
+
 export const visualScenarios = {
   "simple-default": {
     snapshotName: "simple-default",
@@ -402,6 +427,61 @@ export const visualScenarios = {
     },
     stateValues: createBaseStateValues()
   },
+  "iphone-simple-default": createIphoneScenario({
+    snapshotName: "iphone-simple-default",
+    config: createBaseConfig()
+  }),
+  "iphone-spacing-compact": createIphoneScenario({
+    snapshotName: "iphone-spacing-compact",
+    config: {
+      ...createBaseConfig(),
+      segment_spacing: "compact"
+    }
+  }),
+  "iphone-label-compact": createIphoneScenario({
+    snapshotName: "iphone-label-compact",
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "compact"
+    }
+  }),
+  "iphone-label-minimal": createIphoneScenario({
+    snapshotName: "iphone-label-minimal",
+    config: {
+      ...createSingleChartConfig(),
+      label_preset: "minimal"
+    }
+  }),
+  "iphone-ring-bold": createIphoneScenario({
+    snapshotName: "iphone-ring-bold",
+    config: {
+      ...createSingleChartConfig(),
+      ring_size: "bold"
+    }
+  }),
+  "iphone-time-navigator": createIphoneScenario({
+    snapshotName: "iphone-time-navigator",
+    viewport: {
+      ...iphoneViewport,
+      height: 920
+    },
+    config: {
+      ...createBaseConfig(),
+      mode: "time_navigator"
+    }
+  }),
+  "iphone-time-navigator-de": createIphoneScenario({
+    snapshotName: "iphone-time-navigator-de",
+    viewport: {
+      ...iphoneViewport,
+      height: 920
+    },
+    locale: "de-DE",
+    config: {
+      ...createBaseConfig(),
+      mode: "time_navigator"
+    }
+  }),
   "editor-default": {
     snapshotName: "editor-default",
     page: "editor-harness.html",
