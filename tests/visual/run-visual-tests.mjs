@@ -16,6 +16,7 @@ const goldenDir = path.join(testsRoot, "golden");
 const actualDir = path.join(testsRoot, "actual");
 const diffDir = path.join(testsRoot, "diff");
 const updateSnapshots = process.argv.includes("--update");
+const scenarioFilter = process.argv.find((argument) => argument.startsWith("--filter="))?.slice("--filter=".length);
 const visualBaseDate = "2026-04-01T12:00:00.000Z";
 
 const textEncoder = new TextEncoder();
@@ -205,9 +206,16 @@ const run = async () => {
   });
 
   const results = [];
+  const scenarioNames = scenarioFilter
+    ? visualScenarioNames.filter((scenarioName) => scenarioName.includes(scenarioFilter))
+    : visualScenarioNames;
+
+  if (scenarioNames.length === 0) {
+    throw new Error(`No visual scenarios matched filter "${scenarioFilter}".`);
+  }
 
   try {
-    for (const scenarioName of visualScenarioNames) {
+    for (const scenarioName of scenarioNames) {
       const scenario = visualScenarios[scenarioName];
       const page = await browser.newPage();
 
